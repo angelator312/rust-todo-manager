@@ -86,4 +86,11 @@ impl App {
     pub(crate) fn switch_to_prev_type(&mut self) {
         self.todo_type = self.todo_type.prev();
     }
+    pub(crate) fn get_id_of_now_selected(&self) -> Option<usize> {
+        if self.todos[self.id_of_now_root].children.len() == 0 {
+            None
+        } else {
+            Some(self.todos[self.id_of_now_root].children[self.idx_of_now_selected])
+        }
+    }
 }

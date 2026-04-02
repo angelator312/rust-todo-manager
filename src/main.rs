@@ -71,12 +71,9 @@ where
                         app.start_edit_of_todo(id, true);
                     }
                     KeyCode::Char('e') => {
-                        app.start_edit_of_todo(
-                            app.todos[app.id_of_now_root].children[app.idx_of_now_selected],
-                            false,
-                        );
-                        // app.current_screen = CurrentScreen::Editing;
-                        // app.currently_editing = Some(CurrentlyEditing::TodoText);
+                        if let Some(id) = app.get_id_of_now_selected() {
+                            app.start_edit_of_todo(id, false);
+                        }
                     }
                     KeyCode::Char('q') => {
                         app.current_screen = CurrentScreen::Exiting;
@@ -92,6 +89,14 @@ where
                         if app.idx_of_now_selected > 0 {
                             app.idx_of_now_selected -= 1;
                         }
+                    }
+                    KeyCode::Right => {
+                        if let Some(id) = app.get_id_of_now_selected() {
+                            app.id_of_now_root = id;
+                        }
+                    }
+                    KeyCode::Left => {
+                        app.id_of_now_root = app.todos[app.id_of_now_root].parent;
                     }
                     _ => {}
                 },
