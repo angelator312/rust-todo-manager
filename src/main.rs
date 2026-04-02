@@ -11,6 +11,7 @@ use std::io;
 mod app;
 mod todo;
 mod ui;
+use crate::todo::{Todo, get_id};
 use crate::{
     app::{App, CurrentScreen, CurrentlyEditing},
     ui::ui,
@@ -59,9 +60,23 @@ where
             }
             match app.current_screen {
                 CurrentScreen::Main => match key.code {
+                    KeyCode::Char('n') => {
+                        let id = get_id();
+                        app.todos.push(Todo::new(
+                            "".into(),
+                            todo::TodoTypes::Todo,
+                            app.id_of_now_root,
+                            id.clone(),
+                        ));
+                        app.start_edit_of_todo(id, true);
+                    }
                     KeyCode::Char('e') => {
-                        app.current_screen = CurrentScreen::Editing;
-                        app.currently_editing = Some(CurrentlyEditing::TodoText);
+                        app.start_edit_of_todo(
+                            app.todos[app.id_of_now_root].children[app.idx_of_now_selected],
+                            false,
+                        );
+                        // app.current_screen = CurrentScreen::Editing;
+                        // app.currently_editing = Some(CurrentlyEditing::TodoText);
                     }
                     KeyCode::Char('q') => {
                         app.current_screen = CurrentScreen::Exiting;

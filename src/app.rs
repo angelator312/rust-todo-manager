@@ -1,4 +1,4 @@
-use crate::todo::{Todo, TodoTypes};
+use crate::todo::{Todo, TodoTypes, get_id};
 pub enum CurrentScreen {
     Main,
     Editing,
@@ -17,7 +17,9 @@ pub struct App {
     pub currently_editing: Option<CurrentlyEditing>,
     pub id_of_now_root: usize,
     pub idx_of_now_selected: usize,
+    pub id_of_now_editing: usize,
     pub todos: Vec<Todo>,
+    pub is_new: bool,
 }
 impl App {
     pub fn new() -> App {
@@ -28,18 +30,31 @@ impl App {
             current_screen: CurrentScreen::Main,
             currently_editing: None,
             id_of_now_root: 0,
+            id_of_now_editing: 0,
             idx_of_now_selected: 0,
             todos: vec![Todo::make_root()],
+            is_new: false,
         }
     }
+    pub fn start_edit_of_todo(&mut self, id: usize, is_new: bool) {
+        self.is_new = is_new;
+        self.current_screen = CurrentScreen::Editing;
+        self.currently_editing = Some(CurrentlyEditing::TodoText);
+        self.text_input = self.todos[id].text.clone();
+        self.todo_type = self.todos[id].todo_type.clone();
+        self.id_of_now_editing = id.clone();
+    }
     pub fn save_todo(&mut self) {
-        self.todos.push(Todo::new(
+        self.todos[self.id_of_now_editing] = Todo::new(
             self.text_input.to_owned(),
             self.todo_type.clone(),
             self.id_of_now_root,
-        ));
-        if let Some(todo) = self.todos.last().cloned() {
-            self.todos[self.id_of_now_root].children.push(todo.id())
+            self.id_of_now_editing,
+        );
+        if self.is_new {
+            self.todos[self.id_of_now_root]
+                .children
+                .push(self.id_of_now_editing);
         }
         self.text_input = String::new();
         self.todo_type = TodoTypes::Todo;

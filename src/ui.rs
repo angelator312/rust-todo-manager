@@ -101,7 +101,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::Main => Span::styled(
-                "(q) to quit / (e) to make new pair",
+                "(q) to quit / (n) to make new pair",
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::Editing => Span::styled(
@@ -109,7 +109,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::Exiting => Span::styled(
-                "(q) to quit / (e) to make new pair",
+                "(q) to quit / (n) to make new pair",
                 Style::default().fg(Color::Red),
             ),
         }

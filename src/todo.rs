@@ -47,7 +47,7 @@ pub struct Todo {
     id: usize,
 }
 
-fn get_id() -> usize {
+pub(crate) fn get_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
     COUNTER.fetch_add(1, Ordering::Relaxed)
 }
@@ -61,16 +61,16 @@ impl Todo {
             id: 0,
         }
     }
-    pub(crate) fn new(text: String, todo_type: TodoTypes, parent: usize) -> Self {
+    pub(crate) fn new(text: String, todo_type: TodoTypes, parent: usize, id: usize) -> Self {
         Self {
             todo_type,
             text,
             children: vec![],
-            id: get_id(),
             parent,
+            id,
         }
     }
-    pub fn id(&self)->usize{
+    pub fn id(&self) -> usize {
         self.id
     }
 }
