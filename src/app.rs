@@ -1,3 +1,5 @@
+use std::{fs::File, io::Write};
+
 use crate::todo::{Todo, TodoTypes, get_id};
 pub enum CurrentScreen {
     Main,
@@ -74,11 +76,6 @@ impl App {
             self.currently_editing = Some(CurrentlyEditing::TodoText);
         }
     }
-    pub fn print_json(&self) -> serde_json::Result<()> {
-        let out = &self.todos;
-        println!("{out:?}");
-        Ok(())
-    }
 
     pub(crate) fn switch_to_next_type(&mut self) {
         self.todo_type = self.todo_type.next();
@@ -91,6 +88,16 @@ impl App {
             None
         } else {
             Some(self.todos[self.id_of_now_root].children[self.idx_of_now_selected])
+        }
+    }
+    pub(crate) fn save(&mut self) -> Result<(), String> {
+        if let Ok(json) = serde_json::to_string(&self.todos) {
+            if let Ok(mut file) = File::create("output.txt") {
+                file.write_all(json.as_bytes());
+            }
+            Ok(())
+        } else {
+            Err("Problem".into())
         }
     }
 }

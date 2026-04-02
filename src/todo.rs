@@ -1,7 +1,8 @@
 use std::fmt::Display;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum TodoTypes {
     Done = 0,
     WorkInProgress = 1,
@@ -38,7 +39,7 @@ impl Display for TodoTypes {
         Ok(())
     }
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Todo {
     pub todo_type: TodoTypes,
     pub text: String,

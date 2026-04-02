@@ -38,9 +38,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     terminal.show_cursor()?;
 
     if let Ok(do_print) = res {
-        if do_print {
-            app.print_json()?;
-        }
     } else if let Err(err) = res {
         println!("{err:?}");
     }
@@ -102,6 +99,7 @@ where
                 },
                 CurrentScreen::Exiting => match key.code {
                     KeyCode::Char('y') => {
+                        app.save();
                         return Ok(true);
                     }
                     KeyCode::Char('n') | KeyCode::Char('q') => {
