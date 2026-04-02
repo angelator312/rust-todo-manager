@@ -13,31 +13,35 @@ pub enum CurrentlyEditing {
 pub struct App {
     pub todo_type: TodoTypes,          // the currently being edited json key.
     pub text_input: String,            // the currently being edited json key.
-    pub todos: Vec<Todo>, // The representation of our key and value pairs with serde Serialize support
+    pub root: Todo, // The representation of our key and value pairs with serde Serialize support
     pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
     pub currently_editing: Option<CurrentlyEditing>,
+    pub path_to_selected:Vec<usize>
 }
 impl App {
-    fn test_todos() -> Vec<Todo> {
-        return vec![
+    fn test_todos() -> Todo {
+        let mut a=Todo::new("Root".into(),TodoTypes::Done);
+        a.children=vec![
             Todo::new("Let's start".into(), TodoTypes::Done),
             Todo::new("More".into(), TodoTypes::Todo),
             Todo::new("Really random".into(), TodoTypes::WorkInProgress),
             Todo::new("Let's start".into(), TodoTypes::Done),
         ];
+        return a;
     }
     pub fn new() -> App {
         App {
             text_input: String::new(),
             todo_type: TodoTypes::Todo,
-            // todos: App::test_todos(),
-            todos: vec![],
+            root: App::test_todos(),
+            // todos: vec![],
             current_screen: CurrentScreen::Main,
             currently_editing: None,
+            path_to_selected:vec![0]
         }
     }
     pub fn save_todo(&mut self) {
-        self.todos.push(Todo::new(
+        self.root.children.push(Todo::new(
             self.text_input.to_owned(),
             self.todo_type.clone(),
         ));
@@ -61,7 +65,7 @@ impl App {
         }
     }
     pub fn print_json(&self) -> serde_json::Result<()> {
-        let out = &self.todos;
+        let out = &self.root;
         println!("{out:?}");
         Ok(())
     }

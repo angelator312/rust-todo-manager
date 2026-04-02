@@ -66,6 +66,24 @@ where
                     KeyCode::Char('q') => {
                         app.current_screen = CurrentScreen::Exiting;
                     }
+                    KeyCode::Down => {
+                        if let Some(last) = app.path_to_selected.last().cloned() {
+                            // cloned() takes ownership, reference is released
+                            if app.root.children.len() > last + 1 {
+                                app.path_to_selected.pop();
+                                app.path_to_selected.push(last + 1);
+                            }
+                        }
+                    }
+                    KeyCode::Up => {
+                        if let Some(last) = app.path_to_selected.last().cloned() {
+                            // cloned() takes ownership, reference is released
+                            if last>0 {
+                                app.path_to_selected.pop();
+                                app.path_to_selected.push(last - 1);
+                            }
+                        }
+                    }
                     _ => {}
                 },
                 CurrentScreen::Exiting => match key.code {
