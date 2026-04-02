@@ -74,6 +74,7 @@ where
                     }
                     KeyCode::Char('q') => {
                         app.current_screen = CurrentScreen::Exiting;
+                        app.text_input = String::from("");
                     }
                     KeyCode::Down => {
                         if app.todos[app.id_of_now_root].children.len()
@@ -98,12 +99,15 @@ where
                     _ => {}
                 },
                 CurrentScreen::Exiting => match key.code {
-                    KeyCode::Char('y') => {
-                        app.save();
+                    KeyCode::Enter => {
+                        app.save(app.text_input.clone());
                         return Ok(true);
                     }
-                    KeyCode::Char('n') | KeyCode::Char('q') => {
-                        return Ok(false);
+                    KeyCode::Char(value) => {
+                        app.text_input.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.text_input.pop();
                     }
                     _ => {}
                 },

@@ -90,9 +90,9 @@ impl App {
             Some(self.todos[self.id_of_now_root].children[self.idx_of_now_selected])
         }
     }
-    pub(crate) fn save(&mut self) -> Result<(), String> {
+    pub(crate) fn save(&mut self,str:String) -> Result<(), String> {
         if let Ok(json) = serde_json::to_string(&self.todos) {
-            if let Ok(mut file) = File::create("output.txt") {
+            if let Ok(mut file) = File::create(str+".task.json") {
                 file.write_all(json.as_bytes());
             }
             Ok(())
