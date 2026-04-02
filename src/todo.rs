@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[derive(Clone, Debug)]
 pub enum TodoTypes {
@@ -41,16 +42,36 @@ impl Display for TodoTypes {
 pub struct Todo {
     pub todo_type: TodoTypes,
     pub text: String,
-    pub children: Vec<Todo>,
+    pub children: Vec<usize>,
+    pub parent: usize,
+    id: usize,
 }
 
+fn get_id() -> usize {
+    static COUNTER: AtomicUsize = AtomicUsize::new(1);
+    COUNTER.fetch_add(1, Ordering::Relaxed)
+}
 impl Todo {
-    pub(crate) fn new(text: String, todo_type: TodoTypes) -> Self {
+    pub(crate) fn make_root() -> Self {
         Self {
-            todo_type: todo_type,
+            todo_type: TodoTypes::Done,
+            text: "RootOfAll".into(),
+            children: vec![],
+            parent: 0,
+            id: 0,
+        }
+    }
+    pub(crate) fn new(text: String, todo_type: TodoTypes, parent: usize) -> Self {
+        Self {
+            todo_type,
             text,
             children: vec![],
+            id: get_id(),
+            parent,
         }
+    }
+    pub fn id(&self)->usize{
+        self.id
     }
 }
 impl Display for Todo {

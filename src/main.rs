@@ -67,21 +67,15 @@ where
                         app.current_screen = CurrentScreen::Exiting;
                     }
                     KeyCode::Down => {
-                        if let Some(last) = app.path_to_selected.last().cloned() {
-                            // cloned() takes ownership, reference is released
-                            if app.root.children.len() > last + 1 {
-                                app.path_to_selected.pop();
-                                app.path_to_selected.push(last + 1);
-                            }
+                        if app.todos[app.id_of_now_root].children.len()
+                            > app.idx_of_now_selected + 1
+                        {
+                            app.idx_of_now_selected += 1;
                         }
                     }
                     KeyCode::Up => {
-                        if let Some(last) = app.path_to_selected.last().cloned() {
-                            // cloned() takes ownership, reference is released
-                            if last>0 {
-                                app.path_to_selected.pop();
-                                app.path_to_selected.push(last - 1);
-                            }
+                        if app.idx_of_now_selected > 0 {
+                            app.idx_of_now_selected -= 1;
                         }
                     }
                     _ => {}

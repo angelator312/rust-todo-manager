@@ -53,15 +53,15 @@ pub fn ui(frame: &mut Frame, app: &App) {
     frame.render_widget(title, chunks[0]);
     let mut list_items = Vec::<ListItem>::new();
 
-    if let Some(search)=app.path_to_selected.last()
-    {
-
-    for (idx,key) in app.root.children.clone().iter().enumerate() {
+    for (idx, key) in app.todos[app.id_of_now_root].children.clone().iter().enumerate() {
         list_items.push(ListItem::new(Line::from(Span::styled(
-            format!("{key}"),
-            Style::default().fg(if idx==*search {Color::Blue} else {Color::Yellow}),
+            format!("{}",app.todos[*key]),
+            Style::default().fg(if idx == app.idx_of_now_selected {
+                Color::Blue
+            } else {
+                Color::Yellow
+            }),
         ))));
-    }
     }
 
     let list = List::new(list_items);
