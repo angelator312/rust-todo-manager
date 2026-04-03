@@ -99,14 +99,22 @@ where
                         }
                     }
                     KeyCode::Left => {
-                        app.idx_of_now_selected = 0;
+                        if let Some(a) = app.todos[app.todos[app.id_of_now_root].parent]
+                            .children
+                            .iter()
+                            .position(|&x| x == app.todos[app.id_of_now_root].id())
+                        {
+                            app.idx_of_now_selected = a;
+                        }
                         app.id_of_now_root = app.todos[app.id_of_now_root].parent;
                     }
                     _ => {}
                 },
                 CurrentScreen::Exiting => match key.code {
                     KeyCode::Enter => {
-                        app.save(app.text_input.clone());
+                        if !app.text_input.is_empty() {
+                            app.save(app.text_input.clone());
+                        }
                         return Ok(true);
                     }
                     KeyCode::Char(value) => {

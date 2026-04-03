@@ -90,10 +90,10 @@ pub fn ui(frame: &mut Frame, app: &App) {
             if let Some(editing) = &app.currently_editing {
                 match editing {
                     CurrentlyEditing::TodoText => {
-                        Span::styled("Editing Json Key", Style::default().fg(Color::Green))
+                        Span::styled("Editing Todo text", Style::default().fg(Color::Green))
                     }
                     CurrentlyEditing::TodoType => {
-                        Span::styled("Editing Json Value", Style::default().fg(Color::LightGreen))
+                        Span::styled("Editing Todo type", Style::default().fg(Color::LightGreen))
                     }
                 }
             } else {
@@ -115,7 +115,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::Exiting | CurrentScreen::Loading => Span::styled(
-                "enter to confirm the operation, escape to abort",
+                "(enter) to confirm the operation, (ESC) to cancel",
                 Style::default().fg(Color::Red),
             ),
         }
@@ -131,7 +131,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
     frame.render_widget(key_notes_footer, footer_chunks[1]);
     if let Some(editing) = &app.currently_editing {
         let popup_block = Block::default()
-            .title("Enter a new key-value pair")
+            .title("Enter a new todo")
             .borders(Borders::NONE)
             .style(Style::default().bg(Color::DarkGray));
 
