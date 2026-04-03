@@ -140,7 +140,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let popup_chunks = Layout::default()
             .direction(Direction::Horizontal)
             .margin(1)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(area);
         let mut key_block = Block::default().title("Text").borders(Borders::ALL);
         let mut value_block = Block::default().title("Value").borders(Borders::ALL);
