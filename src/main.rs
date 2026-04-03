@@ -58,14 +58,7 @@ where
             match app.current_screen {
                 CurrentScreen::Main => match key.code {
                     KeyCode::Char('n') => {
-                        let id = get_id();
-                        app.todos.push(Todo::new(
-                            "".into(),
-                            todo::TodoTypes::Todo,
-                            app.id_of_now_root,
-                            id.clone(),
-                        ));
-                        app.start_edit_of_todo(id, true);
+                        app.start_edit_of_todo(1, true);
                     }
                     KeyCode::Char('e') => {
                         if let Some(id) = app.get_id_of_now_selected() {

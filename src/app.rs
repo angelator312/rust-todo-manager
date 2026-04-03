@@ -46,11 +46,26 @@ impl App {
         self.is_new = is_new;
         self.current_screen = CurrentScreen::Editing;
         self.currently_editing = Some(CurrentlyEditing::TodoText);
-        self.text_input = self.todos[id].text.clone();
-        self.todo_type = self.todos[id].todo_type.clone();
-        self.id_of_now_editing = id.clone();
+        if is_new {
+            self.text_input = "".into();
+            self.todo_type = TodoTypes::Todo;
+            self.id_of_now_editing = 0;
+        } else {
+            self.text_input = self.todos[id].text.clone();
+            self.todo_type = self.todos[id].todo_type.clone();
+            self.id_of_now_editing = id.clone();
+        }
     }
     pub fn save_todo(&mut self) {
+        if self.is_new {
+            self.id_of_now_editing = get_id();
+            self.todos.push(Todo::new(
+                "".into(),
+                TodoTypes::Todo,
+                self.id_of_now_root,
+                self.id_of_now_editing,
+            ));
+        }
         self.todos[self.id_of_now_editing] = Todo::new(
             self.text_input.to_owned(),
             self.todo_type.clone(),
@@ -106,10 +121,10 @@ impl App {
     }
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
         if let Ok(contents) = fs::read_to_string(str + &String::from(".task.json")) {
-            let todos=serde_json::from_str::<Vec<Todo>>(&contents).unwrap();
-            self.todos=todos;
-            self.id_of_now_root=0;//root
-            self.idx_of_now_selected=0;
+            let todos = serde_json::from_str::<Vec<Todo>>(&contents).unwrap();
+            self.todos = todos;
+            self.id_of_now_root = 0; //root
+            self.idx_of_now_selected = 0;
         }
         Ok(())
     }
