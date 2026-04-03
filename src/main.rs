@@ -72,8 +72,12 @@ where
                             app.start_edit_of_todo(id, false);
                         }
                     }
-                    KeyCode::Char('q') => {
+                    KeyCode::Char('q') | KeyCode::Char('s') => {
                         app.current_screen = CurrentScreen::Exiting;
+                        app.text_input = String::from("");
+                    }
+                    KeyCode::Char('l') => {
+                        app.current_screen = CurrentScreen::Loading;
                         app.text_input = String::from("");
                     }
                     KeyCode::Down => {
@@ -91,9 +95,11 @@ where
                     KeyCode::Right => {
                         if let Some(id) = app.get_id_of_now_selected() {
                             app.id_of_now_root = id;
+                            app.idx_of_now_selected = 0;
                         }
                     }
                     KeyCode::Left => {
+                        app.idx_of_now_selected = 0;
                         app.id_of_now_root = app.todos[app.id_of_now_root].parent;
                     }
                     _ => {}
@@ -102,6 +108,26 @@ where
                     KeyCode::Enter => {
                         app.save(app.text_input.clone());
                         return Ok(true);
+                    }
+                    KeyCode::Char(value) => {
+                        app.text_input.push(value);
+                    }
+                    KeyCode::Backspace => {
+                        app.text_input.pop();
+                    }
+                    KeyCode::Esc => {
+                        app.current_screen = CurrentScreen::Main;
+                    }
+                    _ => {}
+                },
+                CurrentScreen::Loading => match key.code {
+                    KeyCode::Esc => {
+                        app.current_screen = CurrentScreen::Main;
+                    }
+                    KeyCode::Enter => {
+                        if let Ok(e) = app.load(app.text_input.clone()) {
+                            app.current_screen = CurrentScreen::Main;
+                        }
                     }
                     KeyCode::Char(value) => {
                         app.text_input.push(value);

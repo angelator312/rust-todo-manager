@@ -1,10 +1,14 @@
-use std::{fs::File, io::Write};
+use std::{
+    fs::{self, File},
+    io::Write,
+};
 
 use crate::todo::{Todo, TodoTypes, get_id};
 pub enum CurrentScreen {
     Main,
     Editing,
     Exiting,
+    Loading,
 }
 
 pub enum CurrentlyEditing {
@@ -90,14 +94,23 @@ impl App {
             Some(self.todos[self.id_of_now_root].children[self.idx_of_now_selected])
         }
     }
-    pub(crate) fn save(&mut self,str:String) -> Result<(), String> {
+    pub(crate) fn save(&mut self, str: String) -> Result<(), String> {
         if let Ok(json) = serde_json::to_string(&self.todos) {
-            if let Ok(mut file) = File::create(str+".task.json") {
+            if let Ok(mut file) = File::create(str + ".task.json") {
                 file.write_all(json.as_bytes());
             }
             Ok(())
         } else {
             Err("Problem".into())
         }
+    }
+    pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
+        if let Ok(contents) = fs::read_to_string(str + &String::from(".task.json")) {
+            let todos=serde_json::from_str::<Vec<Todo>>(&contents).unwrap();
+            self.todos=todos;
+            self.id_of_now_root=0;//root
+            self.idx_of_now_selected=0;
+        }
+        Ok(())
     }
 }

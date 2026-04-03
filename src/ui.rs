@@ -80,6 +80,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
                 Span::styled("Editing Mode", Style::default().fg(Color::Yellow))
             }
             CurrentScreen::Exiting => Span::styled("Exiting", Style::default().fg(Color::LightRed)),
+            CurrentScreen::Loading => Span::styled("Loading", Style::default().fg(Color::LightRed)),
         }
         .to_owned(),
         // A white divider bar to separate the two sections
@@ -106,15 +107,15 @@ pub fn ui(frame: &mut Frame, app: &App) {
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::Main => Span::styled(
-                "(q) to quit / (n) to make new pair",
+                "(q/s) to quit or save /(l) to load / (n) to make new pair",
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::Editing => Span::styled(
                 "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
                 Style::default().fg(Color::Red),
             ),
-            CurrentScreen::Exiting => Span::styled(
-                "(q) to quit / (n) to make new pair",
+            CurrentScreen::Exiting | CurrentScreen::Loading => Span::styled(
+                "enter to confirm the operation, escape to abort",
                 Style::default().fg(Color::Red),
             ),
         }
@@ -157,14 +158,23 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let value_text = Paragraph::new(app.todo_type.to_string()).block(value_block);
         frame.render_widget(value_text, popup_chunks[1]);
     }
-    if let CurrentScreen::Exiting = app.current_screen {
+    if let CurrentScreen::Exiting | CurrentScreen::Loading = app.current_screen {
         frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
         let popup_block = Block::default()
             .title("Y/N")
             .borders(Borders::NONE)
             .style(Style::default().bg(Color::DarkGray));
 
-        let str: String = "Would you like to save the buffer as json? (enter)\n".into();
+        let str: String = match app.current_screen {
+            CurrentScreen::Loading => {
+                "Would you like to load a todo list?(enter to load,escape to abort)\n"
+            }
+            CurrentScreen::Exiting => {
+                "Would you like to save a todo list?(enter to save,escape to abort)\n"
+            }
+            _ => "",
+        }
+        .into();
         let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::Red));
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
