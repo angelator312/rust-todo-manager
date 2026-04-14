@@ -73,6 +73,10 @@ where
                         app.current_screen = CurrentScreen::Loading;
                         app.text_input = String::from("");
                     }
+                    KeyCode::Char('d') => {
+                        app.current_screen = CurrentScreen::Deleting;
+                        app.text_input = String::from("");
+                    }
                     KeyCode::Down => {
                         if app.todos[app.id_of_now_root].children.len()
                             > app.idx_of_now_selected + 1
@@ -92,7 +96,7 @@ where
                         }
                     }
                     KeyCode::Left => {
-                        if let Some(a) = app.todos[app.todos[app.id_of_now_root].parent]
+                        if let Some(a) = app.todos[&app.todos[app.id_of_now_root].parent]
                             .children
                             .iter()
                             .position(|&x| x == app.todos[app.id_of_now_root].id())
@@ -200,7 +204,18 @@ where
 
                     _ => {}
                 },
-                _ => {}
+                CurrentScreen::Editing => {}
+                CurrentScreen::Deleting => match key.code {
+                    KeyCode::Char(e) => app.text_input.push(e),
+                    KeyCode::Enter => {
+                        if app.text_input == "Yes" {
+                            //delete the todo
+                            app.delete_now_todo()
+                        }
+                    }
+                    KeyCode::Backspace=>{app.text_input.pop();},
+                    _=>{}
+                },
             }
         }
     }

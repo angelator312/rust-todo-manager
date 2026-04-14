@@ -12,6 +12,7 @@ pub enum CurrentScreen {
     Editing,
     Exiting,
     Loading,
+    Deleting
 }
 
 pub enum CurrentlyEditing {

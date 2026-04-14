@@ -81,6 +81,9 @@ pub fn ui(frame: &mut Frame, app: &App) {
             }
             CurrentScreen::Exiting => Span::styled("Exiting", Style::default().fg(Color::LightRed)),
             CurrentScreen::Loading => Span::styled("Loading", Style::default().fg(Color::LightRed)),
+            CurrentScreen::Deleting => {
+                Span::styled("Deleting a pair", Style::default().fg(Color::LightRed))
+            }
         }
         .to_owned(),
         // A white divider bar to separate the two sections
@@ -107,7 +110,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::Main => Span::styled(
-                "(q/s) to quit or save /(l) to load / (n) to make new pair",
+                "(q/s) to quit or save /(l) to load / (n) to make new pair/(d) to delete",
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::Editing => Span::styled(
@@ -116,6 +119,10 @@ pub fn ui(frame: &mut Frame, app: &App) {
             ),
             CurrentScreen::Exiting | CurrentScreen::Loading => Span::styled(
                 "(enter) to confirm the operation, (ESC) to cancel",
+                Style::default().fg(Color::Red),
+            ),
+            CurrentScreen::Deleting => Span::styled(
+                "(ESC) to cancel/(Tab) to switch boxes, are you sure you want to delete?",
                 Style::default().fg(Color::Red),
             ),
         }
@@ -177,6 +184,23 @@ pub fn ui(frame: &mut Frame, app: &App) {
             _ => "",
         }
         .into();
+        let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::Red));
+        // the `trim: false` will stop the text from being cut off when over the edge of the block
+        let exit_paragraph = Paragraph::new(exit_text)
+            .block(popup_block)
+            .wrap(Wrap { trim: false });
+
+        let area = centered_rect(60, 25, frame.area());
+        frame.render_widget(exit_paragraph, area);
+    }
+    if let CurrentScreen::Deleting = app.current_screen {
+        frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
+        let popup_block = Block::default()
+            .title("Y/N")
+            .borders(Borders::NONE)
+            .style(Style::default().bg(Color::DarkGray));
+
+        let str: String = "Type 'delete' so we can be sure".into();
         let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::Red));
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
