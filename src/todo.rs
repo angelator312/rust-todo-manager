@@ -1,5 +1,4 @@
 use std::fmt::Display;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -48,10 +47,6 @@ pub struct Todo {
     id: usize,
 }
 
-pub(crate) fn get_id() -> usize {
-    static COUNTER: AtomicUsize = AtomicUsize::new(1);
-    COUNTER.fetch_add(1, Ordering::Relaxed)
-}
 impl Todo {
     pub(crate) fn make_root() -> Self {
         Self {

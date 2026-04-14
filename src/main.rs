@@ -9,9 +9,9 @@ use ratatui::prelude::{Backend, CrosstermBackend};
 use std::error::Error;
 use std::io;
 mod app;
+mod config;
 mod todo;
 mod ui;
-use crate::todo::{Todo, get_id};
 use crate::{
     app::{App, CurrentScreen, CurrentlyEditing},
     ui::ui,
@@ -126,8 +126,10 @@ where
                         app.current_screen = CurrentScreen::Main;
                     }
                     KeyCode::Enter => {
-                        if let Ok(e) = app.load(app.text_input.clone()) {
-                            app.current_screen = CurrentScreen::Main;
+                        let anem = app.load(app.text_input.clone());
+                        match anem {
+                            Ok(_) => app.current_screen = CurrentScreen::Main,
+                            Err(e) => app.text_input += e.as_str(),
                         }
                     }
                     KeyCode::Char(value) => {

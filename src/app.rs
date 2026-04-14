@@ -1,9 +1,10 @@
-use std::{
-    fs::{self, File},
-    io::Write,
+use crate::{
+    config::Config,
+    todo::{Todo, TodoTypes},
 };
-
-use crate::todo::{Todo, TodoTypes, get_id};
+use std::{
+    collections::HashMap, fs::{self, File}, io::Write
+};
 pub enum CurrentScreen {
     Main,
     Editing,
@@ -26,6 +27,7 @@ pub struct App {
     pub id_of_now_editing: usize,
     pub todos: Vec<Todo>,
     pub is_new: bool,
+    pub config: Config,
 }
 impl App {
     pub fn new() -> App {
@@ -40,6 +42,10 @@ impl App {
             idx_of_now_selected: 0,
             todos: vec![Todo::make_root()],
             is_new: false,
+            config: match Config::load() {
+                Ok(it) => it,
+                Err(_) =>Config { projects: {HashMap::new()} },
+            },
         }
     }
     pub fn start_edit_of_todo(&mut self, id: usize, is_new: bool) {
@@ -58,7 +64,7 @@ impl App {
     }
     pub fn save_todo(&mut self) {
         if self.is_new {
-            self.id_of_now_editing = get_id();
+            self.id_of_now_editing = self.todos.len();
             self.todos.push(Todo::new(
                 "".into(),
                 TodoTypes::Todo,
@@ -109,9 +115,21 @@ impl App {
             Some(self.todos[self.id_of_now_root].children[self.idx_of_now_selected])
         }
     }
+    pub(crate) fn resolve_path(&self, str: String) -> Result<String,String> {
+        if str.starts_with("$") {
+            if let Some(s) = self.config.get_project(&str[..]) {
+                Ok(s.clone())
+            } else {
+                Err("No Project".into())
+            }
+        } else {
+            Ok(str)
+        }
+    }
     pub(crate) fn save(&mut self, str: String) -> Result<(), String> {
+        let str = self.resolve_path(str)?;
         if let Ok(json) = serde_json::to_string(&self.todos) {
-            if let Ok(mut file) = File::create(str + ".task.json") {
+            if let Ok(mut file) = File::create(str) {
                 file.write_all(json.as_bytes());
             }
             Ok(())
@@ -120,7 +138,8 @@ impl App {
         }
     }
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
-        if let Ok(contents) = fs::read_to_string(str + &String::from(".task.json")) {
+        let str = self.resolve_path(str)?;
+        if let Ok(contents) = fs::read_to_string(str) {
             let todos = serde_json::from_str::<Vec<Todo>>(&contents).unwrap();
             self.todos = todos;
             self.id_of_now_root = 0; //root
