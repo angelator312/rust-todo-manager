@@ -51,7 +51,7 @@ impl Todo {
     pub(crate) fn make_root() -> Self {
         Self {
             todo_type: TodoTypes::Done,
-            text: "RootOfAll".into(),
+            text: "RootOfAll 1".into(),//number is text[10..]
             children: vec![],
             parent: 0,
             id: 0,

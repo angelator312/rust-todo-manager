@@ -3,7 +3,9 @@ use crate::{
     todo::{Todo, TodoTypes},
 };
 use std::{
-    collections::HashMap, fs::{self, File}, io::Write
+    collections::HashMap,
+    fs::{self, File},
+    io::Write,
 };
 pub enum CurrentScreen {
     Main,
@@ -44,7 +46,9 @@ impl App {
             is_new: false,
             config: match Config::load() {
                 Ok(it) => it,
-                Err(_) =>Config { projects: {HashMap::new()} },
+                Err(_) => Config {
+                    projects: { HashMap::new() },
+                },
             },
         }
     }
@@ -64,7 +68,13 @@ impl App {
     }
     pub fn save_todo(&mut self) {
         if self.is_new {
-            self.id_of_now_editing = self.todos.len();
+            self.id_of_now_editing = self.todos[0].text[10..]
+                .parse()
+                .expect("Not a valid Todo Thing you open");
+            self.todos[0].text.truncate(10);
+            self.todos[0]
+                .text
+                .push_str(&(self.id_of_now_editing + 1).to_string()[..]);
             self.todos.push(Todo::new(
                 "".into(),
                 TodoTypes::Todo,
@@ -115,7 +125,7 @@ impl App {
             Some(self.todos[self.id_of_now_root].children[self.idx_of_now_selected])
         }
     }
-    pub(crate) fn resolve_path(&self, str: String) -> Result<String,String> {
+    pub(crate) fn resolve_path(&self, str: String) -> Result<String, String> {
         if str.starts_with("$") {
             if let Some(s) = self.config.get_project(&str[..]) {
                 Ok(s.clone())
