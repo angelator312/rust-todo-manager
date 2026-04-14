@@ -52,15 +52,14 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(title, chunks[0]);
     let mut list_items = Vec::<ListItem>::new();
-
-    for (idx, key) in app.todos[app.id_of_now_root]
+    for (idx, key) in app.todos[&app.id_of_now_root]
         .children
         .clone()
         .iter()
         .enumerate()
     {
         list_items.push(ListItem::new(Line::from(Span::styled(
-            format!("{}", app.todos[*key]),
+            format!("{}", app.todos[key]),
             Style::default().fg(if idx == app.idx_of_now_selected {
                 Color::Blue
             } else {
@@ -200,7 +199,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .borders(Borders::NONE)
             .style(Style::default().bg(Color::DarkGray));
 
-        let str: String = "Type 'delete' so we can be sure".into();
+        let str: String = "Type 'Yes' so we can be sure\n".into();
         let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::Red));
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
