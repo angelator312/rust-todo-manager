@@ -152,7 +152,9 @@ pub fn ui(frame: &mut Frame, app: &App) {
             CurrentlyEditing::TodoType => value_block = value_block.style(active_style),
         };
 
-        let key_text = Paragraph::new(app.text_input.clone()).block(key_block);
+        let key_text = Paragraph::new(app.text_input.clone())
+            .block(key_block)
+            .wrap(Wrap { trim: true });
         frame.render_widget(key_text, popup_chunks[0]);
 
         let value_text = Paragraph::new(app.todo_type.to_string()).block(value_block);
