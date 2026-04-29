@@ -80,16 +80,20 @@ impl App {
                 .unwrap()
                 .text
                 .push_str(&(self.id_of_now_editing + 1).to_string()[..]);
-        }
-        self.todos.insert(
-            self.id_of_now_editing,
-            Todo::new(
-                self.text_input.to_owned(),
-                self.todo_type.clone(),
-                self.id_of_now_root,
+            self.todos.insert(
                 self.id_of_now_editing,
-            ),
-        );
+                Todo::new(
+                    "".into(),
+                    TodoTypes::Todo,
+                    self.id_of_now_root,
+                    self.id_of_now_editing,
+                ),
+            );
+        }
+        if let Some(refer) = self.todos.get_mut(&self.id_of_now_editing) {
+            refer.text = self.text_input.clone();
+            refer.todo_type = self.todo_type.clone();
+        }
         if self.is_new {
             self.todos
                 .get_mut(&self.id_of_now_root)
