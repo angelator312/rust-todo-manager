@@ -34,8 +34,7 @@ impl Display for TodoTypes {
                 TodoTypes::WorkInProgress => "Work In progress",
                 TodoTypes::Todo => "Todo",
             }
-        );
-        Ok(())
+        )
     }
 }
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -72,7 +71,6 @@ impl Todo {
 }
 impl Display for Todo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{};{}", self.todo_type, self.text);
-        Ok(())
+        write!(f, "{};{}", self.todo_type, self.text)
     }
 }
