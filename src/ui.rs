@@ -171,7 +171,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let popup_block = Block::default()
             .title("Y/N")
             .borders(Borders::NONE)
-            .style(Style::default().bg(Color::DarkGray));
+            .style(Style::default().bg(Color::Yellow));
 
         let str: String = match app.current_screen {
             CurrentScreen::Loading => {
@@ -183,7 +183,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             _ => "",
         }
         .into();
-        let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::Red));
+        let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::LightRed));
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
             .block(popup_block)
