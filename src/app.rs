@@ -31,6 +31,7 @@ pub struct App {
     pub todos: HashMap<Id, Todo>,
     pub is_new: bool,
     pub config: Config,
+    pub loaded_file: String,
 }
 impl App {
     pub fn new() -> App {
@@ -53,6 +54,7 @@ impl App {
                     projects: { HashMap::new() },
                 },
             },
+            loaded_file: String::new(),
         }
     }
     pub fn start_edit_of_todo(&mut self, id: usize, is_new: bool) {
@@ -146,6 +148,7 @@ impl App {
     }
     pub(crate) fn save(&mut self, str: String) -> Result<(), String> {
         let str = self.resolve_path(str)?;
+        self.loaded_file = str.clone();
         if let Ok(json) = serde_json::to_string(&self.todos) {
             if let Ok(mut file) = File::create(str) {
                 file.write_all(json.as_bytes());
@@ -157,6 +160,7 @@ impl App {
     }
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
         let str = self.resolve_path(str)?;
+        self.loaded_file = str.clone();
         if let Ok(contents) = fs::read_to_string(str) {
             let todos = serde_json::from_str::<HashMap<Id, Todo>>(&contents).unwrap();
             self.todos = todos;

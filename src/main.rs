@@ -71,7 +71,7 @@ where
                     }
                     KeyCode::Char('q') | KeyCode::Char('s') => {
                         app.current_screen = CurrentScreen::Exiting;
-                        app.text_input = String::from("");
+                        app.text_input = app.loaded_file.clone();
                     }
                     KeyCode::Char('l') => {
                         app.current_screen = CurrentScreen::Loading;
@@ -112,10 +112,13 @@ where
                     _ => {}
                 },
                 CurrentScreen::Exiting => match key.code {
-                    KeyCode::Enter => {
+                    KeyCode::Enter | KeyCode::Char('s') => {
                         if !app.text_input.is_empty() {
                             app.save(app.text_input.clone());
                         }
+                        return Ok(true);
+                    }
+                    KeyCode::Char('q') => {
                         return Ok(true);
                     }
                     KeyCode::Char(value) => {
