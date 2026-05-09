@@ -10,10 +10,8 @@ use std::error::Error;
 use std::io;
 mod app;
 mod config;
-mod text_utils;
 mod todo;
 mod ui;
-use crate::text_utils::remove_last_word_before_slash;
 use crate::{
     app::{App, CurrentScreen, CurrentlyEditing},
     ui::ui,
