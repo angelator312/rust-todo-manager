@@ -26,6 +26,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // create app and run it
     let mut app = App::new();
+    let args_last = std::env::args().last();
+    if let Some(arg) = args_last {
+        app.load(arg);
+    }
     let res = run_app(&mut terminal, &mut app);
 
     // restore terminal
