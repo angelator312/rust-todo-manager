@@ -31,6 +31,41 @@ const DIALOG_TEXT: Style = Style {
     add_modifier: Modifier::empty(),
     sub_modifier: Modifier::empty(),
 };
+const DIALOG_EDITOR_ACTIVE_TAB: Style = Style {
+    bg: Option::Some(Color::LightYellow),
+    fg: Option::Some(Color::White),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+const HELP_TEXT_STYLE: Style = Style {
+    bg: Option::Some(Color::White),
+    fg: Option::Some(Color::Red),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+const TODO_TEXT_STYLE: Style = Style {
+    bg: Option::None,
+    fg: Option::Some(Color::Yellow),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+const ACTIVE_TODO_TEXT_STYLE: Style = Style {
+    bg: Option::None,
+    fg: Option::Some(Color::Blue),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+const MAIN_TITLE_TEXT_STYLE: Style = Style {
+    bg: Option::None,
+    fg: Option::Some(Color::Green),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
 
 /// helper function to create a centered rect using up certain percentage of the available rect `r`
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
@@ -65,12 +100,11 @@ pub fn ui(frame: &mut Frame, app: &App) {
         ])
         .split(frame.area());
     let title_block = Block::default()
-        .borders(Borders::ALL)
-        .style(Style::default());
+        .borders(Borders::ALL);
 
     let title = Paragraph::new(Text::styled(
         "Todo Manager",
-        Style::default().fg(Color::Green),
+        MAIN_TITLE_TEXT_STYLE,
     ))
     .block(title_block);
 
@@ -84,81 +118,41 @@ pub fn ui(frame: &mut Frame, app: &App) {
     {
         list_items.push(ListItem::new(Line::from(Span::styled(
             format!("{}", app.todos[key]),
-            Style::default().fg(if idx == app.idx_of_now_selected {
-                Color::Blue
+            if idx == app.idx_of_now_selected {
+                ACTIVE_TODO_TEXT_STYLE
             } else {
-                Color::Yellow
-            }),
+                TODO_TEXT_STYLE
+            },
         ))));
     }
 
     let list = List::new(list_items);
 
     frame.render_widget(list, chunks[1]);
-    let current_navigation_text = vec![
-        // The first half of the text
-        match app.current_screen {
-            CurrentScreen::Main => Span::styled("Normal Mode", Style::default().fg(Color::Green)),
-            CurrentScreen::Editing => {
-                Span::styled("Editing Mode", Style::default().fg(Color::Yellow))
-            }
-            CurrentScreen::Exiting => Span::styled("Exiting", Style::default().fg(Color::LightRed)),
-            CurrentScreen::Loading => Span::styled("Loading", Style::default().fg(Color::LightRed)),
-            CurrentScreen::Deleting => {
-                Span::styled("Deleting a pair", Style::default().fg(Color::LightRed))
-            }
-        }
-        .to_owned(),
-        // A white divider bar to separate the two sections
-        Span::styled(" | ", Style::default().fg(Color::White)),
-        // The final section of the text, with hints on what the user is editing
-        {
-            if let Some(editing) = &app.currently_editing {
-                match editing {
-                    CurrentlyEditing::TodoText => {
-                        Span::styled("Editing Todo text", Style::default().fg(Color::Green))
-                    }
-                    CurrentlyEditing::TodoType => {
-                        Span::styled("Editing Todo type", Style::default().fg(Color::LightGreen))
-                    }
-                }
-            } else {
-                Span::styled("Not Editing Anything", Style::default().fg(Color::DarkGray))
-            }
-        },
-    ];
-
-    let mode_footer = Paragraph::new(Line::from(current_navigation_text))
-        .block(Block::default().borders(Borders::ALL));
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::Main => Span::styled(
                 "(q/s) to quit or save /(l) to load / (n) to make new pair/(d) to delete",
-                Style::default().fg(Color::Red),
+                HELP_TEXT_STYLE,
             ),
             CurrentScreen::Editing => Span::styled(
                 "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
-                Style::default().fg(Color::Red),
+                HELP_TEXT_STYLE,
             ),
             CurrentScreen::Exiting | CurrentScreen::Loading => Span::styled(
                 "(enter) to confirm the operation, (ESC) to cancel",
-                Style::default().fg(Color::Red),
+                HELP_TEXT_STYLE,
             ),
             CurrentScreen::Deleting => Span::styled(
                 "(ESC) to cancel/(Tab) to switch boxes, are you sure you want to delete?",
-                Style::default().fg(Color::Red),
+                HELP_TEXT_STYLE,
             ),
         }
     };
 
     let key_notes_footer =
         Paragraph::new(Line::from(current_keys_hint)).block(Block::default().borders(Borders::ALL));
-    let footer_chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-        .split(chunks[2]);
-    frame.render_widget(mode_footer, footer_chunks[0]);
-    frame.render_widget(key_notes_footer, footer_chunks[1]);
+    frame.render_widget(key_notes_footer, chunks[2]);
     if let Some(editing) = &app.currently_editing {
         let popup_block = Block::default()
             .title("Enter a new todo")
@@ -175,11 +169,9 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let mut key_block = Block::default().title("Text").borders(Borders::ALL);
         let mut value_block = Block::default().title("Value").borders(Borders::ALL);
 
-        let active_style = Style::default().bg(Color::LightYellow).fg(Color::Black);
-
         match editing {
-            CurrentlyEditing::TodoText => key_block = key_block.style(active_style),
-            CurrentlyEditing::TodoType => value_block = value_block.style(active_style),
+            CurrentlyEditing::TodoText => key_block = key_block.style(DIALOG_EDITOR_ACTIVE_TAB),
+            CurrentlyEditing::TodoType => value_block = value_block.style(DIALOG_EDITOR_ACTIVE_TAB),
         };
 
         let key_text = Paragraph::new(app.text_input.clone())
