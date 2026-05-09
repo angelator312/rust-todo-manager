@@ -32,6 +32,7 @@ pub struct App {
     pub is_new: bool,
     pub config: Config,
     pub loaded_file: String,
+    pub path_to_now_todo: Vec<String>,
 }
 impl App {
     pub fn new() -> App {
@@ -55,6 +56,7 @@ impl App {
                 },
             },
             loaded_file: String::new(),
+            path_to_now_todo: vec![],
         }
     }
     pub fn start_edit_of_todo(&mut self, id: usize, is_new: bool) {

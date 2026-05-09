@@ -101,8 +101,11 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .split(frame.area());
     let title_block = Block::default().borders(Borders::ALL);
 
-    let title =
-        Paragraph::new(Text::styled("Todo Manager", MAIN_TITLE_TEXT_STYLE)).block(title_block);
+    let title = Paragraph::new(Text::styled(
+        String::from("Todo Manager : ") + &app.path_to_now_todo.join("/"),
+        MAIN_TITLE_TEXT_STYLE,
+    ))
+    .block(title_block);
 
     frame.render_widget(title, chunks[0]);
     let mut list_items = Vec::<ListItem>::new();
