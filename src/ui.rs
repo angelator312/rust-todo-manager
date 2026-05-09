@@ -1,12 +1,36 @@
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
 };
 
 use crate::app::{App, CurrentScreen, CurrentlyEditing};
+
+const DIALOG_STYLE: Style = Style {
+    bg: Option::Some(Color::Black),
+    fg: Option::Some(Color::White),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+
+const DIALOG_TITLE: Style = Style {
+    bg: Option::Some(Color::Black),
+    fg: Option::Some(Color::Yellow),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
+
+const DIALOG_TEXT: Style = Style {
+    bg: Option::Some(Color::Black),
+    fg: Option::Some(Color::White),
+    underline_color: Option::None,
+    add_modifier: Modifier::empty(),
+    sub_modifier: Modifier::empty(),
+};
 
 /// helper function to create a centered rect using up certain percentage of the available rect `r`
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
@@ -139,7 +163,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let popup_block = Block::default()
             .title("Enter a new todo")
             .borders(Borders::NONE)
-            .style(Style::default().bg(Color::DarkGray));
+            .style(DIALOG_STYLE);
 
         let area = centered_rect(60, 25, frame.area());
         frame.render_widget(popup_block, area);
@@ -171,7 +195,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let popup_block = Block::default()
             .title("Y/N")
             .borders(Borders::NONE)
-            .style(Style::default().bg(Color::Yellow));
+            .style(DIALOG_TITLE);
 
         let str: String = match app.current_screen {
             CurrentScreen::Loading => {
@@ -183,7 +207,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             _ => "",
         }
         .into();
-        let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::LightRed));
+        let exit_text = Text::styled(str + &app.text_input, DIALOG_TEXT);
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
             .block(popup_block)
@@ -197,10 +221,10 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let popup_block = Block::default()
             .title("Y/N")
             .borders(Borders::NONE)
-            .style(Style::default().bg(Color::DarkGray));
+            .style(DIALOG_TITLE);
 
         let str: String = "Type 'Yes' so we can be sure\n".into();
-        let exit_text = Text::styled(str + &app.text_input, Style::default().fg(Color::Red));
+        let exit_text = Text::styled(str + &app.text_input, DIALOG_TEXT);
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
             .block(popup_block)
