@@ -70,7 +70,9 @@ where
                         }
                     }
                     KeyCode::Char('q') | KeyCode::Char('s') => {
-                        app.current_screen = CurrentScreen::Exiting;
+                        app.current_screen = CurrentScreen::Exiting {
+                            for_quit: (key.code == KeyCode::Char('q')),
+                        };
                         app.text_input = app.loaded_file.clone();
                     }
                     KeyCode::Char('l') => {
@@ -97,7 +99,8 @@ where
                         if let Some(id) = app.get_id_of_now_selected() {
                             app.id_of_now_root = id;
                             app.idx_of_now_selected = 0;
-                            app.path_to_now_todo.push(app.todos[&app.id_of_now_root].text.clone());
+                            app.path_to_now_todo
+                                .push(app.todos[&app.id_of_now_root].text.clone());
                         }
                     }
                     KeyCode::Left => {
@@ -113,15 +116,21 @@ where
                     }
                     _ => {}
                 },
-                CurrentScreen::Exiting => match key.code {
+                CurrentScreen::Exiting { for_quit } => match key.code {
                     KeyCode::Enter | KeyCode::Char('s') => {
                         if !app.text_input.is_empty() {
                             app.save(app.text_input.clone());
                         }
-                        return Ok(true);
+                        if for_quit {
+                            return Ok(true);
+                        }
+                        app.current_screen = CurrentScreen::Main;
                     }
                     KeyCode::Char('q') => {
-                        return Ok(true);
+                        if for_quit {
+                            return Ok(true);
+                        }
+                        app.current_screen = CurrentScreen::Main;
                     }
                     KeyCode::Char(value) => {
                         app.text_input.push(value);

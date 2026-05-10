@@ -10,7 +10,7 @@ use std::{
 pub enum CurrentScreen {
     Main,
     Editing,
-    Exiting,
+    Exiting { for_quit: bool },
     Loading,
     Deleting,
 }

@@ -138,7 +138,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
                 "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
                 HELP_TEXT_STYLE,
             ),
-            CurrentScreen::Exiting | CurrentScreen::Loading => Span::styled(
+            CurrentScreen::Exiting { for_quit: _ } | CurrentScreen::Loading => Span::styled(
                 "(enter) to confirm the operation, (ESC) to cancel",
                 HELP_TEXT_STYLE,
             ),
@@ -181,10 +181,23 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let value_text = Paragraph::new(app.todo_type.to_string()).block(value_block);
         frame.render_widget(value_text, popup_chunks[1]);
     }
-    if let CurrentScreen::Exiting | CurrentScreen::Loading = app.current_screen {
+    let for_quit_opt = if let CurrentScreen::Exiting { for_quit } = app.current_screen {
+        Some(for_quit)
+    } else if let CurrentScreen::Loading = app.current_screen {
+        None
+    } else {
+        return;
+    };
+    if let CurrentScreen::Exiting { for_quit: _ } | CurrentScreen::Loading = app.current_screen {
         frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
         let popup_block = Block::default()
-            .title("Y/N")
+            .title(match for_quit_opt.is_some() {
+                true => match for_quit_opt.unwrap() {
+                    true => "Quit",
+                    false => "Save as",
+                },
+                false => "Loading",
+            })
             .borders(Borders::NONE)
             .style(DIALOG_TITLE);
 
@@ -192,7 +205,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             CurrentScreen::Loading => {
                 "Would you like to load a todo list?(enter to load,escape to abort)\n"
             }
-            CurrentScreen::Exiting => {
+            CurrentScreen::Exiting { for_quit: _ } => {
                 "Would you like to save a todo list?(enter to save,escape to abort)\n"
             }
             _ => "",
