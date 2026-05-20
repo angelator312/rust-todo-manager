@@ -1,9 +1,11 @@
+use std::cmp::min;
+
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Clear,  Paragraph, Row, Table, TableState, Wrap},
+    widgets::{Block, Borders, Cell, Clear, Paragraph, Row, Table, TableState, Wrap},
 };
 
 use crate::app::{App, CurrentScreen, CurrentlyEditing};
@@ -109,14 +111,22 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(title, chunks[0]);
     let mut rows = Vec::<Row>::new();
+    let widths = [Constraint::Percentage(70), Constraint::Percentage(30)];
+    let (term_cols, _) = crossterm::terminal::size().unwrap(); // T
+    let w = ((70 as f64 / 100.0) * term_cols as f64).floor() as usize;
     for (_idx, key) in app.todos[&app.id_of_now_root]
         .children
         .clone()
         .iter()
         .enumerate()
     {
+        let mut str: String =
+            app.todos[key].text.clone()[..min(w - 3, app.todos[key].text.len())].into();
+        if app.todos[key].text.len() > w - 3 {
+            str.push_str("...");
+        }
         rows.push(Row::new([
-            app.todos[key].text.clone(),
+            str,
             app.todos[key].todo_type.clone().to_string(),
         ]));
         //     Line::from(Span::styled(
@@ -127,7 +137,6 @@ pub fn ui(frame: &mut Frame, app: &App) {
         //     },
         // ))));
     }
-    let widths = [Constraint::Percentage(70), Constraint::Percentage(30)];
 
     let table = Table::new(rows, widths)
         // .header(header)
@@ -135,10 +144,10 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .column_spacing(1)
         .style(TODO_TEXT_STYLE)
         .row_highlight_style(ACTIVE_TODO_TEXT_STYLE);
-        // .cell_highlight_style(Style::new().reversed().yellow())
+    // .cell_highlight_style(Style::new().reversed().yellow())
     let mut table_state: TableState = TableState::default();
     table_state.select(Some(app.idx_of_now_selected));
-    frame.render_stateful_widget(table, chunks[1],&mut table_state);
+    frame.render_stateful_widget(table, chunks[1], &mut table_state);
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::Main => Span::styled(
