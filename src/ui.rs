@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Clear, List, ListItem, Paragraph, Wrap},
+    widgets::{Block, Borders, Clear,  Paragraph, Row, Table, TableState, Wrap},
 };
 
 use crate::app::{App, CurrentScreen, CurrentlyEditing};
@@ -108,26 +108,37 @@ pub fn ui(frame: &mut Frame, app: &App) {
     .block(title_block);
 
     frame.render_widget(title, chunks[0]);
-    let mut list_items = Vec::<ListItem>::new();
-    for (idx, key) in app.todos[&app.id_of_now_root]
+    let mut rows = Vec::<Row>::new();
+    for (_idx, key) in app.todos[&app.id_of_now_root]
         .children
         .clone()
         .iter()
         .enumerate()
     {
-        list_items.push(ListItem::new(Line::from(Span::styled(
-            format!("{}", app.todos[key]),
-            if idx == app.idx_of_now_selected {
-                ACTIVE_TODO_TEXT_STYLE
-            } else {
-                TODO_TEXT_STYLE
-            },
-        ))));
+        rows.push(Row::new([
+            app.todos[key].text.clone(),
+            app.todos[key].todo_type.clone().to_string(),
+        ]));
+        //     Line::from(Span::styled(
+        //     if idx == app.idx_of_now_selected {
+        //         ACTIVE_TODO_TEXT_STYLE
+        //     } else {
+        //         TODO_TEXT_STYLE
+        //     },
+        // ))));
     }
+    let widths = [Constraint::Percentage(70), Constraint::Percentage(30)];
 
-    let list = List::new(list_items);
-
-    frame.render_widget(list, chunks[1]);
+    let table = Table::new(rows, widths)
+        // .header(header)
+        // .footer(footer.italic())
+        .column_spacing(1)
+        .style(TODO_TEXT_STYLE)
+        .row_highlight_style(ACTIVE_TODO_TEXT_STYLE);
+        // .cell_highlight_style(Style::new().reversed().yellow())
+    let mut table_state: TableState = TableState::default();
+    table_state.select(Some(app.idx_of_now_selected));
+    frame.render_stateful_widget(table, chunks[1],&mut table_state);
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::Main => Span::styled(
