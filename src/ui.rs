@@ -111,9 +111,13 @@ pub fn ui(frame: &mut Frame, app: &App) {
 
     frame.render_widget(title, chunks[0]);
     let mut rows = Vec::<Row>::new();
-    let widths = [Constraint::Percentage(70), Constraint::Percentage(30)];
     let (term_cols, _) = crossterm::terminal::size().unwrap(); // T
-    let w = ((70 as f64 / 100.0) * term_cols as f64).floor() as usize;
+    let perc_for_todo_type = (1700.0 / term_cols as f64).ceil().floor() as u16;
+    let widths = [
+        Constraint::Percentage(100 - perc_for_todo_type),
+        Constraint::Percentage(perc_for_todo_type),
+    ];
+    let w = (((100 - perc_for_todo_type) as f64 / 100.0) * term_cols as f64).floor() as usize;
     for (_idx, key) in app.todos[&app.id_of_now_root]
         .children
         .clone()
