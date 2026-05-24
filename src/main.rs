@@ -194,13 +194,8 @@ where
                         app.toggle_editing();
                     }
                     KeyCode::Char(value) => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::TodoText => {
-                                    app.text_input.push(value);
-                                }
-                                CurrentlyEditing::TodoType => {}
-                            }
+                        if matches!(app.currently_editing, Some(CurrentlyEditing::TodoText)) {
+                            app.text_input.push(value);
                         }
                     }
                     KeyCode::Up | KeyCode::Right => {
