@@ -42,6 +42,23 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
         .split(popup_layout[1])[1] // Return the middle chunk
 }
 
+fn render_popup(frame: &mut Frame, title: &str, str: String) {
+    frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
+    let popup_block = Block::default()
+        .title(title)
+        .borders(Borders::NONE)
+        .style(DIALOG_TITLE);
+
+    let exit_text = Text::styled(str, DIALOG_TEXT);
+    // the `trim: false` will stop the text from being cut off when over the edge of the block
+    let exit_paragraph = Paragraph::new(exit_text)
+        .block(popup_block)
+        .wrap(Wrap { trim: false });
+
+    let area = centered_rect(60, 25, frame.area());
+    frame.render_widget(exit_paragraph, area);
+}
+
 pub fn ui(frame: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
@@ -159,12 +176,6 @@ pub fn ui(frame: &mut Frame, app: &App) {
         "-1"
     };
     if let CurrentScreen::Exiting { for_quit: _ } | CurrentScreen::Loading = app.current_screen {
-        frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
-        let popup_block = Block::default()
-            .title(for_quit_str)
-            .borders(Borders::NONE)
-            .style(DIALOG_TITLE);
-
         let str: String = match app.current_screen {
             CurrentScreen::Loading => {
                 "Would you like to load a todo list?(enter to load,escape to abort)\n"
@@ -175,30 +186,9 @@ pub fn ui(frame: &mut Frame, app: &App) {
             _ => "",
         }
         .into();
-        let exit_text = Text::styled(str + &app.text_input, DIALOG_TEXT);
-        // the `trim: false` will stop the text from being cut off when over the edge of the block
-        let exit_paragraph = Paragraph::new(exit_text)
-            .block(popup_block)
-            .wrap(Wrap { trim: false });
-
-        let area = centered_rect(60, 25, frame.area());
-        frame.render_widget(exit_paragraph, area);
-    }
-    if let CurrentScreen::Deleting = app.current_screen {
-        frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
-        let popup_block = Block::default()
-            .title("Y/N")
-            .borders(Borders::NONE)
-            .style(DIALOG_TITLE);
-
+        render_popup(frame, for_quit_str, str + &app.text_input);
+    } else if let CurrentScreen::Deleting = app.current_screen {
         let str: String = "Type 'y' so we can be sure\n".into();
-        let exit_text = Text::styled(str + &app.text_input, DIALOG_TEXT);
-        // the `trim: false` will stop the text from being cut off when over the edge of the block
-        let exit_paragraph = Paragraph::new(exit_text)
-            .block(popup_block)
-            .wrap(Wrap { trim: false });
-
-        let area = centered_rect(60, 25, frame.area());
-        frame.render_widget(exit_paragraph, area);
+        render_popup(frame, "Y/N", str + &app.text_input);
     }
 }
