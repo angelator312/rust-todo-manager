@@ -83,13 +83,6 @@ pub fn ui(frame: &mut Frame, app: &App) {
             str,
             app.todos[key].todo_type.clone().to_string(),
         ]));
-        //     Line::from(Span::styled(
-        //     if idx == app.idx_of_now_selected {
-        //         ACTIVE_TODO_TEXT_STYLE
-        //     } else {
-        //         TODO_TEXT_STYLE
-        //     },
-        // ))));
     }
 
     let table = Table::new(rows, widths)
@@ -155,23 +148,20 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let value_text = Paragraph::new(app.todo_type.to_string()).block(value_block);
         frame.render_widget(value_text, popup_chunks[1]);
     }
-    let for_quit_opt = if let CurrentScreen::Exiting { for_quit } = app.current_screen {
-        Some(for_quit)
+    let for_quit_str = if let CurrentScreen::Exiting { for_quit } = app.current_screen {
+        match for_quit {
+            true => "Quit",
+            false => "Save as",
+        }
     } else if let CurrentScreen::Loading = app.current_screen {
-        None
+        "Loading"
     } else {
-        return;
+        "-1"
     };
     if let CurrentScreen::Exiting { for_quit: _ } | CurrentScreen::Loading = app.current_screen {
         frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
         let popup_block = Block::default()
-            .title(match for_quit_opt.is_some() {
-                true => match for_quit_opt.unwrap() {
-                    true => "Quit",
-                    false => "Save as",
-                },
-                false => "Loading",
-            })
+            .title(for_quit_str)
             .borders(Borders::NONE)
             .style(DIALOG_TITLE);
 
