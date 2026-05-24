@@ -3,71 +3,21 @@ use std::cmp::min;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
+    style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Cell, Clear, Paragraph, Row, Table, TableState, Wrap},
+    widgets::{Block, Borders, Clear, Paragraph, Row, Table, TableState, Wrap},
 };
 
 use crate::app::{App, CurrentScreen, CurrentlyEditing};
 
-const DIALOG_STYLE: Style = Style {
-    bg: Option::Some(Color::Black),
-    fg: Option::Some(Color::White),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-
-const DIALOG_TITLE: Style = Style {
-    bg: Option::Some(Color::Black),
-    fg: Option::Some(Color::Yellow),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-
-const DIALOG_TEXT: Style = Style {
-    bg: Option::Some(Color::Black),
-    fg: Option::Some(Color::White),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-const DIALOG_EDITOR_ACTIVE_TAB: Style = Style {
-    bg: Option::Some(Color::LightYellow),
-    fg: Option::Some(Color::White),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-const HELP_TEXT_STYLE: Style = Style {
-    bg: Option::Some(Color::White),
-    fg: Option::Some(Color::Red),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-const TODO_TEXT_STYLE: Style = Style {
-    bg: Option::None,
-    fg: Option::Some(Color::Yellow),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-const ACTIVE_TODO_TEXT_STYLE: Style = Style {
-    bg: Option::None,
-    fg: Option::Some(Color::Blue),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
-const MAIN_TITLE_TEXT_STYLE: Style = Style {
-    bg: Option::None,
-    fg: Option::Some(Color::Green),
-    underline_color: Option::None,
-    add_modifier: Modifier::empty(),
-    sub_modifier: Modifier::empty(),
-};
+const DIALOG_STYLE: Style = Style::new().bg(Color::Black).fg(Color::White);
+const DIALOG_TITLE: Style = Style::new().bg(Color::Black).fg(Color::Yellow);
+const DIALOG_TEXT: Style = Style::new().bg(Color::Black).fg(Color::White);
+const DIALOG_EDITOR_ACTIVE_TAB: Style = Style::new().bg(Color::LightYellow).fg(Color::White);
+const HELP_TEXT_STYLE: Style = Style::new().bg(Color::White).fg(Color::Red);
+const TODO_TEXT_STYLE: Style = Style::new().fg(Color::Yellow);
+const ACTIVE_TODO_TEXT_STYLE: Style = Style::new().fg(Color::Blue);
+const MAIN_TITLE_TEXT_STYLE: Style = Style::new().fg(Color::Green);
 
 /// helper function to create a centered rect using up certain percentage of the available rect `r`
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
