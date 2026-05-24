@@ -226,7 +226,7 @@ where
                 CurrentScreen::Deleting => match key.code {
                     KeyCode::Char(e) => app.text_input.push(e),
                     KeyCode::Enter => {
-                        if app.text_input == "Yes" {
+                        if app.text_input == "y" {
                             //delete the todo
                             app.delete_now_todo();
                         }

@@ -191,7 +191,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .borders(Borders::NONE)
             .style(DIALOG_TITLE);
 
-        let str: String = "Type 'Yes' so we can be sure\n".into();
+        let str: String = "Type 'y' so we can be sure\n".into();
         let exit_text = Text::styled(str + &app.text_input, DIALOG_TEXT);
         // the `trim: false` will stop the text from being cut off when over the edge of the block
         let exit_paragraph = Paragraph::new(exit_text)
