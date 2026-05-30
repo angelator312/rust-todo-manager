@@ -143,6 +143,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .style(DIALOG_STYLE);
 
         let area = centered_rect(60, 25, frame.area());
+        frame.render_widget(Clear, area);
         frame.render_widget(popup_block, area);
         let popup_chunks = Layout::default()
             .direction(Direction::Horizontal)
