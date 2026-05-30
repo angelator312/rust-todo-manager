@@ -163,18 +163,11 @@ where
                     _ => {}
                 },
                 CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
-                    KeyCode::Enter => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::TodoText => {
-                                    app.toggle_editing();
-                                }
-                                CurrentlyEditing::TodoType => {
-                                    app.save_todo();
-                                    app.current_screen = CurrentScreen::Main;
-                                }
-                            }
-                        }
+                    KeyCode::Enter
+                        if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType)) =>
+                    {
+                        app.save_todo();
+                        app.current_screen = CurrentScreen::Main;
                     }
                     KeyCode::Esc => {
                         app.current_screen = CurrentScreen::Main;

@@ -119,7 +119,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
                 HELP_TEXT_STYLE,
             ),
             CurrentScreen::Editing => Span::styled(
-                "(ESC) to cancel/(Tab) to switch boxes/enter to complete",
+                "(ESC) to cancel/(Tab) to switch boxes/(enter)(when you edit the todos) to save",
                 HELP_TEXT_STYLE,
             ),
             CurrentScreen::Exiting { for_quit: _ } | CurrentScreen::Loading => Span::styled(
@@ -142,7 +142,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .borders(Borders::NONE)
             .style(DIALOG_STYLE);
 
-        let area = centered_rect(60, 25, frame.area());
+        let area = centered_rect(70, 50, frame.area());
         frame.render_widget(Clear, area);
         frame.render_widget(popup_block, area);
         let popup_chunks = Layout::default()
