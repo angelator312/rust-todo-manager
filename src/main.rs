@@ -167,7 +167,7 @@ where
                         if let Some(editing) = &app.currently_editing {
                             match editing {
                                 CurrentlyEditing::TodoText => {
-                                    app.currently_editing = Some(CurrentlyEditing::TodoType)
+                                    app.toggle_editing();
                                 }
                                 CurrentlyEditing::TodoType => {
                                     app.save_todo();

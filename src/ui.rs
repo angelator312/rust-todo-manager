@@ -10,10 +10,10 @@ use ratatui::{
 
 use crate::app::{App, CurrentScreen, CurrentlyEditing};
 
-const DIALOG_STYLE: Style = Style::new().bg(Color::Black).fg(Color::White);
+pub const DIALOG_STYLE: Style = Style::new().bg(Color::Black).fg(Color::White);
 const DIALOG_TITLE: Style = Style::new().bg(Color::Black).fg(Color::Yellow);
 const DIALOG_TEXT: Style = Style::new().bg(Color::Black).fg(Color::White);
-const DIALOG_EDITOR_ACTIVE_TAB: Style = Style::new().bg(Color::LightYellow).fg(Color::White);
+pub const DIALOG_EDITOR_ACTIVE_TAB: Style = Style::new().bg(Color::LightYellow).fg(Color::White);
 const HELP_TEXT_STYLE: Style = Style::new().bg(Color::White).fg(Color::Red);
 const TODO_TEXT_STYLE: Style = Style::new().fg(Color::Yellow);
 const ACTIVE_TODO_TEXT_STYLE: Style = Style::new().fg(Color::Blue);
