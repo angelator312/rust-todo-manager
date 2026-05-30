@@ -1,3 +1,5 @@
+use ratatui_textarea::TextArea;
+
 use crate::{
     config::Config,
     todo::{Todo, TodoTypes},
@@ -33,6 +35,7 @@ pub struct App {
     pub config: Config,
     pub loaded_file: String,
     pub path_to_now_todo: Vec<String>,
+    pub textarea: TextArea<'static>,
 }
 impl App {
     pub fn new() -> App {
@@ -57,6 +60,7 @@ impl App {
             },
             loaded_file: String::new(),
             path_to_now_todo: vec![],
+            textarea: TextArea::default(),
         }
     }
     pub fn start_edit_of_todo(&mut self, id: usize, is_new: bool) {
@@ -72,6 +76,8 @@ impl App {
             self.todo_type = self.todos[&id].todo_type.clone();
             self.id_of_now_editing = id.clone();
         }
+        self.textarea.clear();
+        self.textarea.insert_str(self.text_input.clone());
     }
     pub fn save_todo(&mut self) {
         if self.is_new {
@@ -95,7 +101,7 @@ impl App {
             );
         }
         if let Some(refer) = self.todos.get_mut(&self.id_of_now_editing) {
-            refer.text = self.text_input.clone();
+            refer.text = self.textarea.lines().join("\n");
             refer.todo_type = self.todo_type.clone();
         }
         if self.is_new {

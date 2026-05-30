@@ -176,16 +176,6 @@ where
                             }
                         }
                     }
-                    KeyCode::Backspace => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::TodoText => {
-                                    app.text_input.pop();
-                                }
-                                CurrentlyEditing::TodoType => {}
-                            }
-                        }
-                    }
                     KeyCode::Esc => {
                         app.current_screen = CurrentScreen::Main;
                         app.currently_editing = None;
@@ -193,29 +183,21 @@ where
                     KeyCode::Tab => {
                         app.toggle_editing();
                     }
-                    KeyCode::Char(value) => {
+                    KeyCode::Up | KeyCode::Right
+                        if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType)) =>
+                    {
+                        app.switch_to_next_type();
+                    }
+                    KeyCode::Down | KeyCode::Left
+                        if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType)) =>
+                    {
+                        app.switch_to_prev_type();
+                    }
+                    _ => {
                         if matches!(app.currently_editing, Some(CurrentlyEditing::TodoText)) {
-                            app.text_input.push(value);
+                            app.textarea.input(key);
                         }
                     }
-                    KeyCode::Up | KeyCode::Right => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::TodoText => {}
-                                CurrentlyEditing::TodoType => app.switch_to_next_type(),
-                            }
-                        }
-                    }
-                    KeyCode::Down | KeyCode::Left => {
-                        if let Some(editing) = &app.currently_editing {
-                            match editing {
-                                CurrentlyEditing::TodoText => {}
-                                CurrentlyEditing::TodoType => app.switch_to_prev_type(),
-                            }
-                        }
-                    }
-
-                    _ => {}
                 },
                 CurrentScreen::Editing => {}
                 CurrentScreen::Deleting => match key.code {

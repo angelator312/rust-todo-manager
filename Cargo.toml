@@ -8,6 +8,7 @@ color-eyre = "0.6.5"
 crossterm = "0.29.0"
 dirs = "6.0.0"
 ratatui = "0.30.0"
+ratatui-textarea = "0.9.1"
 serde = {version="1.0.228",features=["derive"]}
 serde_json = "1.0"
 
