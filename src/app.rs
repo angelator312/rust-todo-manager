@@ -79,6 +79,8 @@ impl App {
         }
         self.textarea.clear();
         self.textarea.insert_str(self.text_input.clone());
+        self.textarea.move_cursor(ratatui_textarea::CursorMove::Top);
+        self.textarea.move_cursor(ratatui_textarea::CursorMove::Head);
     }
     pub fn save_todo(&mut self) {
         if self.is_new {
