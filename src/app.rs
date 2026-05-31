@@ -2,13 +2,13 @@ use ratatui::widgets::{Block, Borders};
 use ratatui_textarea::TextArea;
 use serde::{Deserialize, Serialize};
 
+use crate::notify_error;
 use crate::{
     config::Config,
     notifications,
     todo::{Todo, TodoTypes},
     ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
 };
-use crate::notify_error;
 use std::{
     collections::HashMap,
     fs::{self, File},
@@ -100,7 +100,10 @@ impl App {
             self.id_of_now_editing = match self.todos[&0].text[10..].parse() {
                 Ok(n) => n,
                 Err(e) => {
-                    notifications::error("Internal error", &format!("Root todo counter is corrupted: {}", e));
+                    notifications::error(
+                        "Internal error",
+                        &format!("Root todo counter is corrupted: {}", e),
+                    );
                     return;
                 }
             };
@@ -173,32 +176,38 @@ impl App {
             if let Some(s) = self.config.get_project(&str[..]) {
                 Ok(s.clone())
             } else {
-                Err("No Project".into())
+                Err("No Project ".to_owned() + &str)
             }
         } else {
             Ok(str)
         }
     }
     pub(crate) fn save(&mut self, str: String) -> Result<(), String> {
-        let str = self.resolve_path(str)?;
+        let str = self
+            .resolve_path(str)
+            .map_err(|e| notify_error!("Path error", "{}", e))?;
         self.loaded_file = str.clone();
         let json = serde_json::to_string(&SaveStruct {
             todos: self.todos.clone(),
             version: VERSION_NOW.into(),
         })
         .map_err(|e| notify_error!("Save failed", "Failed to serialize todos: {}", e))?;
-        let mut file = File::create(&str).map_err(|e| notify_error!("Save failed", "Could not create file '{}': {}", str, e))?;
-        file.write_all(json.as_bytes()).map_err(|e| notify_error!("Save failed", "Could not write to '{}': {}", str, e))?;
+        let mut file = File::create(&str)
+            .map_err(|e| notify_error!("Save failed", "Could not create file '{}': {}", str, e))?;
+        file.write_all(json.as_bytes())
+            .map_err(|e| notify_error!("Save failed", "Could not write to '{}': {}", str, e))?;
         Ok(())
     }
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
         let raw_path = str.clone();
         let str = self.resolve_path(str).map_err(|e| {
-            let _ = notifications::warning("Path error", &format!("Could not resolve '{}'", raw_path));
+            let _ =
+                notifications::warning("Path error", &format!("Could not resolve '{}'", raw_path));
             e
         })?;
         self.loaded_file = str.clone();
-        let contents = fs::read_to_string(&str).map_err(|e| notify_error!("Load failed", "Could not read '{}': {}", str, e))?;
+        let contents = fs::read_to_string(&str)
+            .map_err(|e| notify_error!("Load failed", "Could not read '{}': {}", str, e))?;
         self.id_of_now_root = 0; //root
         self.idx_of_now_selected = 0;
         let todos = serde_json::from_str::<SaveStruct>(&contents);
@@ -206,7 +215,9 @@ impl App {
             self.todos = ths.todos;
             self.version = ths.version;
         } else {
-            let todos = serde_json::from_str::<HashMap<usize, Todo>>(&contents).map_err(|e| notify_error!("Load failed", "'{}' is not a valid todo file: {}", str, e))?;
+            let todos = serde_json::from_str::<HashMap<usize, Todo>>(&contents).map_err(|e| {
+                notify_error!("Load failed", "'{}' is not a valid todo file: {}", str, e)
+            })?;
             self.todos = todos;
         }
         Ok(())

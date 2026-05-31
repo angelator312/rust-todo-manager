@@ -123,12 +123,18 @@ where
                 CurrentScreen::Exiting { for_quit } => match key.code {
                     KeyCode::Enter | KeyCode::Char('s') => {
                         if !app.text_input.is_empty() {
-                            let _ = app.save(app.text_input.clone());
+                            if let Ok(_) = app.save(app.text_input.clone()) {
+                                app.current_screen = CurrentScreen::Main;
+                                if for_quit {
+                                    return Ok(true);
+                                }
+                            }
+                        } else {
+                            app.current_screen = CurrentScreen::Main;
+                            if for_quit {
+                                return Ok(true);
+                            }
                         }
-                        if for_quit {
-                            return Ok(true);
-                        }
-                        app.current_screen = CurrentScreen::Main;
                     }
                     KeyCode::Char('q') => {
                         if for_quit {
