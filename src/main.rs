@@ -28,10 +28,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // create app and run it
     let mut app = App::new();
-    let args_last = std::env::args().last();
-    if let Some(arg) = args_last {
-        if let Err(e) = app.load(arg.clone()) {
-            let _ = notifications::warning("Load", &format!("Could not open '{}': {}", arg, e));
+    if std::env::args().len() > 1 {
+        let args_last = std::env::args().last();
+        if let Some(arg) = args_last {
+            if let Err(e) = app.load(arg.clone()) {
+                let _ = notifications::warning("Load", &format!("Could not open '{}': {}", arg, e));
+            }
         }
     }
     let res = run_app(&mut terminal, &mut app);
