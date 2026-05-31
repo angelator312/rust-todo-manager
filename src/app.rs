@@ -1,9 +1,11 @@
 use ratatui::widgets::{Block, Borders};
 use ratatui_textarea::TextArea;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     config::Config,
-    todo::{Todo, TodoTypes}, ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
+    todo::{Todo, TodoTypes},
+    ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
 };
 use std::{
     collections::HashMap,
@@ -17,12 +19,17 @@ pub enum CurrentScreen {
     Loading,
     Deleting,
 }
-
 pub enum CurrentlyEditing {
     TodoText,
     TodoType,
 }
 type Id = usize;
+pub type Version = String;
+#[derive(Deserialize, Serialize)]
+pub struct SaveStruct {
+    pub todos: HashMap<Id, Todo>,
+    pub version: String,
+}
 pub struct App {
     pub todo_type: TodoTypes,          // the currently being edited json key.
     pub text_input: String,            // the currently being edited json key.
@@ -37,7 +44,9 @@ pub struct App {
     pub loaded_file: String,
     pub path_to_now_todo: Vec<String>,
     pub textarea: TextArea<'static>,
+    pub version: Version,
 }
+const VERSION_NOW: &str = "0.2";
 impl App {
     pub fn new() -> App {
         let mut hash = HashMap::new();
@@ -62,6 +71,7 @@ impl App {
             loaded_file: String::new(),
             path_to_now_todo: vec![],
             textarea: TextArea::default(),
+            version: VERSION_NOW.into(),
         }
     }
     pub fn start_edit_of_todo(&mut self, id: usize, is_new: bool) {
@@ -80,7 +90,8 @@ impl App {
         self.textarea.clear();
         self.textarea.insert_str(self.text_input.clone());
         self.textarea.move_cursor(ratatui_textarea::CursorMove::Top);
-        self.textarea.move_cursor(ratatui_textarea::CursorMove::Head);
+        self.textarea
+            .move_cursor(ratatui_textarea::CursorMove::Head);
     }
     pub fn save_todo(&mut self) {
         if self.is_new {
@@ -131,7 +142,8 @@ impl App {
                 }
             };
         } else {
-            self.textarea.set_block(Block::default().title("Text").borders(Borders::ALL));
+            self.textarea
+                .set_block(Block::default().title("Text").borders(Borders::ALL));
             self.textarea.set_style(DIALOG_EDITOR_ACTIVE_TAB);
             self.currently_editing = Some(CurrentlyEditing::TodoText);
         }
@@ -164,7 +176,10 @@ impl App {
     pub(crate) fn save(&mut self, str: String) -> Result<(), String> {
         let str = self.resolve_path(str)?;
         self.loaded_file = str.clone();
-        if let Ok(json) = serde_json::to_string(&self.todos) {
+        if let Ok(json) = serde_json::to_string(&SaveStruct {
+            todos: self.todos.clone(),
+            version: VERSION_NOW.into(),
+        }) {
             if let Ok(mut file) = File::create(str) {
                 file.write_all(json.as_bytes());
             }
@@ -177,10 +192,16 @@ impl App {
         let str = self.resolve_path(str)?;
         self.loaded_file = str.clone();
         if let Ok(contents) = fs::read_to_string(str) {
-            let todos = serde_json::from_str::<HashMap<Id, Todo>>(&contents).unwrap();
-            self.todos = todos;
             self.id_of_now_root = 0; //root
             self.idx_of_now_selected = 0;
+            let todos = serde_json::from_str::<SaveStruct>(&contents);
+            if let Ok(ths) = todos {
+                self.todos = ths.todos;
+                self.version = ths.version;
+            } else {
+                let todos = serde_json::from_str::<HashMap<usize, Todo>>(&contents).unwrap();
+                self.todos = todos;
+            }
         }
         Ok(())
     }
