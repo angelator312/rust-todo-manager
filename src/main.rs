@@ -11,6 +11,7 @@ use std::io;
 mod help;
 mod app;
 mod config;
+mod notifications;
 mod todo;
 mod ui;
 use crate::{
@@ -29,7 +30,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut app = App::new();
     let args_last = std::env::args().last();
     if let Some(arg) = args_last {
-        app.load(arg);
+        if let Err(e) = app.load(arg.clone()) {
+            let _ = notifications::warning("Load", &format!("Could not open '{}': {}", arg, e));
+        }
     }
     let res = run_app(&mut terminal, &mut app);
 
@@ -42,7 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     )?;
     terminal.show_cursor()?;
 
-    if let Ok(do_print) = res {
+    if let Ok(_do_print) = res {
     } else if let Err(err) = res {
         println!("{err:?}");
     }
@@ -120,7 +123,7 @@ where
                 CurrentScreen::Exiting { for_quit } => match key.code {
                     KeyCode::Enter | KeyCode::Char('s') => {
                         if !app.text_input.is_empty() {
-                            app.save(app.text_input.clone());
+                            let _ =app.save(app.text_input.clone());
                         }
                         if for_quit {
                             return Ok(true);

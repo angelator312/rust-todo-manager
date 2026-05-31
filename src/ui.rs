@@ -146,11 +146,10 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .margin(1)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(area);
-        let mut key_block = Block::default().title("Text").borders(Borders::ALL);
         let mut value_block = Block::default().title("Value").borders(Borders::ALL);
 
         match editing {
-            CurrentlyEditing::TodoText => key_block = key_block.style(DIALOG_EDITOR_ACTIVE_TAB),
+            _ => {}
             CurrentlyEditing::TodoType => value_block = value_block.style(DIALOG_EDITOR_ACTIVE_TAB),
         };
 
