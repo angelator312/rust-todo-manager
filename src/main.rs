@@ -8,6 +8,7 @@ use ratatui::crossterm::terminal::{
 use ratatui::prelude::{Backend, CrosstermBackend};
 use std::error::Error;
 use std::io;
+mod help;
 mod app;
 mod config;
 mod todo;

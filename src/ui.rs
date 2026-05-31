@@ -8,7 +8,10 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Paragraph, Row, Table, TableState, Wrap},
 };
 
-use crate::app::{App, CurrentScreen, CurrentlyEditing};
+use crate::{
+    app::{App, CurrentScreen, CurrentlyEditing},
+    help,
+};
 
 pub const DIALOG_STYLE: Style = Style::new().bg(Color::Black).fg(Color::White);
 const DIALOG_TITLE: Style = Style::new().bg(Color::Black).fg(Color::Yellow);
@@ -113,32 +116,17 @@ pub fn ui(frame: &mut Frame, app: &App) {
     table_state.select(Some(app.idx_of_now_selected));
     frame.render_stateful_widget(table, chunks[1], &mut table_state);
     let current_keys_hint = {
-        match &app.current_screen {
-            CurrentScreen::Main => Span::styled(
-                "(q) quit / (s) save withuot quit / (l) load / (n) new / (e) edit / (d) delete / (↑↓) select / (←→) navigate",
-                HELP_TEXT_STYLE,
-            ),
-            CurrentScreen::Editing => Span::styled(
-                "(Esc) cancel / (Tab) switch fields / (↑↓) change type / (Enter on type field) save",
-                HELP_TEXT_STYLE,
-            ),
-            CurrentScreen::Exiting { for_quit: true } => Span::styled(
-                "(Enter/s) save & quit / (q) quit now / (Esc) cancel \u{2014} type filename or $project_alias",
-                HELP_TEXT_STYLE,
-            ),
-            CurrentScreen::Exiting { for_quit: false } => Span::styled(
-                "(Enter/s) save / (q) discard / (Esc) cancel \u{2014} type filename or $project_alias",
-                HELP_TEXT_STYLE,
-            ),
-            CurrentScreen::Loading => Span::styled(
-                "(Enter) load / (Esc) cancel \u{2014} type filename or $project_alias",
-                HELP_TEXT_STYLE,
-            ),
-            CurrentScreen::Deleting => Span::styled(
-                "Type 'y' then (Enter) to confirm / (Esc) cancel",
-                HELP_TEXT_STYLE,
-            ),
-        }
+        Span::styled(
+            match &app.current_screen {
+                CurrentScreen::Main => help::MAIN_SCREEN,
+                CurrentScreen::Editing => help::EDIT_SCREEN,
+                CurrentScreen::Exiting { for_quit: true } => help::QUIT_EXIT,
+                CurrentScreen::Exiting { for_quit: false } => help::SAVE_EXIT,
+                CurrentScreen::Loading => help::LOADING,
+                CurrentScreen::Deleting => help::DELETING,
+            },
+            HELP_TEXT_STYLE,
+        )
     };
 
     let key_notes_footer =
