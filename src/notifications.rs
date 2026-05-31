@@ -47,6 +47,18 @@ pub fn error(title: &str, message: &str) -> () {
 pub fn warning(title: &str, message: &str) -> () {
     let _ = notify(NotificationLevel::Warning, title, message);
 }
+/// The first param is the title, the second param is everything that you'll put in a format!(msg)
+///
+/// Macro that formats a message, fires an error notification, then returns the message as a String.
+/// Useful inside `.map_err(|e| ...)` closures.
+#[macro_export]
+macro_rules! notify_error {
+    ($title:expr, $($arg:tt)+) => {{
+        let msg = format!($($arg)+);
+        $crate::notifications::error($title, &msg);
+        msg
+    }};
+}
 
 /// Convenience wrapper for Info-level notifications.
 #[allow(dead_code)]

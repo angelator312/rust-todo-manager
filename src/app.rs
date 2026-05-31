@@ -8,6 +8,7 @@ use crate::{
     todo::{Todo, TodoTypes},
     ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
 };
+use crate::notify_error;
 use std::{
     collections::HashMap,
     fs::{self, File},
@@ -185,21 +186,9 @@ impl App {
             todos: self.todos.clone(),
             version: VERSION_NOW.into(),
         })
-        .map_err(|e| {
-            let msg = format!("Failed to serialize todos: {}", e);
-            notifications::error("Save failed", &msg);
-            msg
-        })?;
-        let mut file = File::create(&str).map_err(|e| {
-            let msg = format!("Could not create file '{}': {}", str, e);
-            notifications::error("Save failed", &msg);
-            msg
-        })?;
-        file.write_all(json.as_bytes()).map_err(|e| {
-            let msg = format!("Could not write to '{}': {}", str, e);
-            notifications::error("Save failed", &msg);
-            msg
-        })?;
+        .map_err(|e| notify_error!("Save failed", "Failed to serialize todos: {}", e))?;
+        let mut file = File::create(&str).map_err(|e| notify_error!("Save failed", "Could not create file '{}': {}", str, e))?;
+        file.write_all(json.as_bytes()).map_err(|e| notify_error!("Save failed", "Could not write to '{}': {}", str, e))?;
         Ok(())
     }
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
@@ -209,11 +198,7 @@ impl App {
             e
         })?;
         self.loaded_file = str.clone();
-        let contents = fs::read_to_string(&str).map_err(|e| {
-            let msg = format!("Could not read '{}': {}", str, e);
-            notifications::error("Load failed", &msg);
-            msg
-        })?;
+        let contents = fs::read_to_string(&str).map_err(|e| notify_error!("Load failed", "Could not read '{}': {}", str, e))?;
         self.id_of_now_root = 0; //root
         self.idx_of_now_selected = 0;
         let todos = serde_json::from_str::<SaveStruct>(&contents);
@@ -221,11 +206,7 @@ impl App {
             self.todos = ths.todos;
             self.version = ths.version;
         } else {
-            let todos = serde_json::from_str::<HashMap<usize, Todo>>(&contents).map_err(|e| {
-                let msg = format!("'{}' is not a valid todo file: {}", str, e);
-                notifications::error("Load failed", &msg);
-                msg
-            })?;
+            let todos = serde_json::from_str::<HashMap<usize, Todo>>(&contents).map_err(|e| notify_error!("Load failed", "'{}' is not a valid todo file: {}", str, e))?;
             self.todos = todos;
         }
         Ok(())
