@@ -8,9 +8,9 @@ use ratatui::crossterm::terminal::{
 use ratatui::prelude::{Backend, CrosstermBackend};
 use std::error::Error;
 use std::io;
-mod help;
 mod app;
 mod config;
+mod help;
 mod notifications;
 mod todo;
 mod ui;
@@ -123,7 +123,7 @@ where
                 CurrentScreen::Exiting { for_quit } => match key.code {
                     KeyCode::Enter | KeyCode::Char('s') => {
                         if !app.text_input.is_empty() {
-                            let _ =app.save(app.text_input.clone());
+                            let _ = app.save(app.text_input.clone());
                         }
                         if for_quit {
                             return Ok(true);
@@ -155,7 +155,7 @@ where
                         let anem = app.load(app.text_input.clone());
                         match anem {
                             Ok(_) => app.current_screen = CurrentScreen::Main,
-                            Err(e) => app.text_input += e.as_str(),
+                            Err(_) => {} //dont do anything its handled somewhere else
                         }
                     }
                     KeyCode::Char(value) => {

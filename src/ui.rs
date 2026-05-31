@@ -149,8 +149,8 @@ pub fn ui(frame: &mut Frame, app: &App) {
         let mut value_block = Block::default().title("Value").borders(Borders::ALL);
 
         match editing {
-            _ => {}
             CurrentlyEditing::TodoType => value_block = value_block.style(DIALOG_EDITOR_ACTIVE_TAB),
+            _ => {}
         };
 
         // let mut key_text = app.textarea;

@@ -9,7 +9,7 @@ pub enum NotificationLevel {
 impl NotificationLevel {
     fn urgency(&self) -> &str {
         match self {
-            NotificationLevel::Error => "critical",
+            NotificationLevel::Error => "normal",
             NotificationLevel::Warning => "normal",
             NotificationLevel::Info => "low",
         }
