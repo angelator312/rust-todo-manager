@@ -43,7 +43,6 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
 }
 
 fn render_popup(frame: &mut Frame, title: &str, str: String) {
-    frame.render_widget(Clear, frame.area()); //this clears the entire screen and anything already drawn
     let popup_block = Block::default()
         .title(title)
         .borders(Borders::NONE)
@@ -56,6 +55,7 @@ fn render_popup(frame: &mut Frame, title: &str, str: String) {
         .wrap(Wrap { trim: false });
 
     let area = centered_rect(60, 25, frame.area());
+    frame.render_widget(Clear, area); //this clears the entire screen and anything already drawn
     frame.render_widget(exit_paragraph, area);
 }
 
@@ -113,21 +113,29 @@ pub fn ui(frame: &mut Frame, app: &App) {
     table_state.select(Some(app.idx_of_now_selected));
     frame.render_stateful_widget(table, chunks[1], &mut table_state);
     let current_keys_hint = {
-        match app.current_screen {
+        match &app.current_screen {
             CurrentScreen::Main => Span::styled(
-                "(q/s) to quit or save /(l) to load / (n) to make new pair/(d) to delete",
+                "(q) quit / (s) save withuot quit / (l) load / (n) new / (e) edit / (d) delete / (↑↓) select / (←→) navigate",
                 HELP_TEXT_STYLE,
             ),
             CurrentScreen::Editing => Span::styled(
-                "(ESC) to cancel/(Tab) to switch boxes/(enter)(when you edit the todos) to save",
+                "(Esc) cancel / (Tab) switch fields / (↑↓) change type / (Enter on type field) save",
                 HELP_TEXT_STYLE,
             ),
-            CurrentScreen::Exiting { for_quit: _ } | CurrentScreen::Loading => Span::styled(
-                "(enter) to confirm the operation, (ESC) to cancel",
+            CurrentScreen::Exiting { for_quit: true } => Span::styled(
+                "(Enter/s) save & quit / (q) quit now / (Esc) cancel \u{2014} type filename or $project_alias",
+                HELP_TEXT_STYLE,
+            ),
+            CurrentScreen::Exiting { for_quit: false } => Span::styled(
+                "(Enter/s) save / (q) discard / (Esc) cancel \u{2014} type filename or $project_alias",
+                HELP_TEXT_STYLE,
+            ),
+            CurrentScreen::Loading => Span::styled(
+                "(Enter) load / (Esc) cancel \u{2014} type filename or $project_alias",
                 HELP_TEXT_STYLE,
             ),
             CurrentScreen::Deleting => Span::styled(
-                "(ESC) to cancel/(Tab) to switch boxes, are you sure you want to delete?",
+                "Type 'y' then (Enter) to confirm / (Esc) cancel",
                 HELP_TEXT_STYLE,
             ),
         }
