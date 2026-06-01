@@ -28,11 +28,33 @@ pub enum CurrentlyEditing {
 }
 pub type Id = String;
 pub type Version = String;
+pub type SaveStruct = SaveStruct03; // last SaveStruct
 #[derive(Deserialize, Serialize)]
-pub struct SaveStruct {
-    pub todos: HashMap<Id, Todo>,
+pub struct SaveStruct03 {
+    pub todos: HashMap<String, Todo>,
     pub version: String,
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct SaveStruct02 {
+    pub todos: HashMap<usize, Todo02>,
+    pub version: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Todo02 {
+    pub todo_type: TodoTypes,
+    pub text: String,
+    pub children: Vec<usize>,
+    pub parent: usize,
+    id: usize,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct OnlyVersion {
+    pub version: String,
+}
+
 pub struct App {
     pub todo_type: TodoTypes,          // the currently being edited json key.
     pub text_input: String,            // the currently being edited json key.
@@ -47,9 +69,8 @@ pub struct App {
     pub loaded_file: String,
     pub path_to_now_todo: Vec<String>,
     pub textarea: TextArea<'static>,
-    pub version: Version,
 }
-const VERSION_NOW: &str = "0.2";
+const VERSION_NOW: &str = "0.3";
 impl App {
     pub fn new() -> App {
         let mut hash = HashMap::new();
@@ -75,7 +96,6 @@ impl App {
             loaded_file: String::new(),
             path_to_now_todo: vec![],
             textarea: TextArea::default(),
-            version: VERSION_NOW.into(),
         }
     }
     pub fn start_edit_of_new_todo(&mut self) {
@@ -192,6 +212,53 @@ impl App {
             .map_err(|e| notify_error!("Save failed", "Could not write to '{}': {}", str, e))?;
         Ok(())
     }
+
+    fn load_v01(&mut self, contents: String) -> Result<(), String> {
+        let todos = serde_json::from_str::<HashMap<usize, Todo02>>(&contents);
+        if let Ok(ths) = todos {
+            self.todos = ths
+                .into_iter()
+                .map(|(k, v)| {
+                    let mut todo =
+                        Todo::new(v.text, v.todo_type, v.parent.to_string(), v.id.to_string());
+                    todo.children = v.children.into_iter().map(|e| e.to_string()).collect();
+                    return (k.to_string(), todo);
+                })
+                .collect();
+            Ok(())
+        } else {
+            Err("V01 isnt real??".into())
+        }
+    }
+    fn load_v02(&mut self, contents: String) -> Result<(), String> {
+        let todos = serde_json::from_str::<SaveStruct02>(&contents);
+        if let Ok(ths) = todos {
+            self.todos = ths
+                .todos
+                .into_iter()
+                .map(|(k, v)| {
+                    let mut todo =
+                        Todo::new(v.text, v.todo_type, v.parent.to_string(), v.id.to_string());
+                    todo.children = v.children.into_iter().map(|e| e.to_string()).collect();
+                    return (k.to_string(), todo);
+                })
+                .collect();
+            Ok(())
+        } else {
+            Err("V02 isnt real??".into())
+        }
+    }
+
+    fn load_v03(&mut self, contents: String) -> Result<(), String> {
+        let todos = serde_json::from_str::<SaveStruct03>(&contents);
+        if let Ok(ths) = todos {
+            self.todos = ths.todos;
+            Ok(())
+        } else {
+            Err("V03 isnt real??".into())
+        }
+    }
+
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
         let raw_path = str.clone();
         let str = self.resolve_path(str).map_err(|e| {
@@ -204,17 +271,16 @@ impl App {
             .map_err(|e| notify_error!("Load failed", "Could not read '{}': {}", str, e))?;
         self.id_of_now_root = "0".to_owned(); //root
         self.idx_of_now_selected = 0;
-        let todos = serde_json::from_str::<SaveStruct>(&contents);
-        if let Ok(ths) = todos {
-            self.todos = ths.todos;
-            self.version = ths.version;
+        if let Ok(ver) = detect_version(&contents) {
+            match &ver[..] {
+                "0.1" => self.load_v01(contents),
+                "0.2" => self.load_v02(contents),
+                "0.3" => self.load_v03(contents),
+                _ => Err("Not implemented version".into()),
+            }
         } else {
-            let todos = serde_json::from_str::<HashMap<usize, Todo>>(&contents).map_err(|e| {
-                notify_error!("Load failed", "'{}' is not a valid todo file: {}", str, e)
-            })?;
-            self.todos = todos;
+            Err("Cant get version".to_string())
         }
-        Ok(())
     }
 
     pub(crate) fn delete_now_todo(&mut self) {
@@ -228,5 +294,14 @@ impl App {
             self.idx_of_now_selected -= 1
         }
         self.todos.remove(id);
+    }
+}
+pub(crate) fn detect_version(contents: &str) -> Result<String, String> {
+    if let Ok(meta) = serde_json::from_str::<OnlyVersion>(contents) {
+        Ok(meta.version)
+    } else if serde_json::from_str::<serde_json::Value>(contents).is_ok() {
+        Ok("0.0".into())
+    } else {
+        Err("File is not valid JSON".into())
     }
 }
