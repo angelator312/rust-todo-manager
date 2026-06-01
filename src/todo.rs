@@ -1,5 +1,7 @@
-use std::fmt::Display;
 use serde::{Deserialize, Serialize};
+use std::fmt::Display;
+
+use crate::app::Id;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum TodoTypes {
@@ -41,22 +43,22 @@ impl Display for TodoTypes {
 pub struct Todo {
     pub todo_type: TodoTypes,
     pub text: String,
-    pub children: Vec<usize>,
-    pub parent: usize,
-    id: usize,
+    pub children: Vec<Id>,
+    pub parent: Id,
+    id: Id,
 }
 
 impl Todo {
     pub(crate) fn make_root() -> Self {
         Self {
             todo_type: TodoTypes::Done,
-            text: "RootOfAll 1".into(),//number is text[10..]
+            text: "RootOfAll 1".into(),
             children: vec![],
-            parent: 0,
-            id: 0,
+            parent: "0".into(),
+            id: "0".into(),
         }
     }
-    pub(crate) fn new(text: String, todo_type: TodoTypes, parent: usize, id: usize) -> Self {
+    pub(crate) fn new(text: String, todo_type: TodoTypes, parent: Id, id: Id) -> Self {
         Self {
             todo_type,
             text,
@@ -65,8 +67,8 @@ impl Todo {
             id,
         }
     }
-    pub fn id(&self) -> usize {
-        self.id
+    pub fn id(&self) -> &Id {
+        &self.id
     }
 }
 impl Display for Todo {

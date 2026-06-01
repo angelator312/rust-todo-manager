@@ -68,11 +68,11 @@ where
             match app.current_screen {
                 CurrentScreen::Main => match key.code {
                     KeyCode::Char('n') => {
-                        app.start_edit_of_todo(1, true);
+                        app.start_edit_of_new_todo();
                     }
                     KeyCode::Char('e') => {
                         if let Some(id) = app.get_id_of_now_selected() {
-                            app.start_edit_of_todo(id, false);
+                            app.start_edit_of_todo(id);
                         }
                     }
                     KeyCode::Char('q') | KeyCode::Char('s') => {
@@ -113,11 +113,11 @@ where
                         if let Some(a) = app.todos[&app.todos[&app.id_of_now_root].parent]
                             .children
                             .iter()
-                            .position(|&x| x == app.todos[&app.id_of_now_root].id())
+                            .position(|x| x == app.todos[&app.id_of_now_root].id())
                         {
                             app.idx_of_now_selected = a;
                         }
-                        app.id_of_now_root = app.todos[&app.id_of_now_root].parent;
+                        app.id_of_now_root = app.todos[&app.id_of_now_root].parent.clone();
                         app.path_to_now_todo.pop();
                     }
                     _ => {}
