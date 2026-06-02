@@ -1,11 +1,11 @@
 use color_eyre::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap};
 use std::fs;
 use std::path::PathBuf;
 
 /// Maps project alias → path to todo file
-pub type ProjectShortcuts = HashMap<String, String>;
+pub type ProjectShortcuts = BTreeMap<String, String>;
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Config {

@@ -10,8 +10,8 @@ use crate::{
     todo::{Todo, TodoTypes},
     ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
 };
+use std::collections::{BTreeMap};
 use std::{
-    collections::HashMap,
     fs::{self, File},
     io::Write,
 };
@@ -27,17 +27,17 @@ pub enum CurrentlyEditing {
     TodoType,
 }
 pub type Id = String;
-pub type Version = String;
 pub type SaveStruct = SaveStruct03; // last SaveStruct
 #[derive(Deserialize, Serialize)]
 pub struct SaveStruct03 {
-    pub todos: HashMap<String, Todo>,
+    // добре ще пробвам
+    pub todos: BTreeMap<String, Todo>,
     pub version: String,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct SaveStruct02 {
-    pub todos: HashMap<usize, Todo02>,
+    pub todos: BTreeMap<usize, Todo02>,
     pub version: String,
 }
 
@@ -63,7 +63,7 @@ pub struct App {
     pub id_of_now_root: Id,
     pub idx_of_now_selected: usize,
     pub id_of_now_editing: Id,
-    pub todos: HashMap<Id, Todo>,
+    pub todos: BTreeMap<Id, Todo>,
     pub is_new: bool,
     pub config: Config,
     pub loaded_file: String,
@@ -73,7 +73,7 @@ pub struct App {
 const VERSION_NOW: &str = "0.3";
 impl App {
     pub fn new() -> App {
-        let mut hash = HashMap::new();
+        let mut hash = BTreeMap::new();
         let root_id: String = "0".to_owned();
         hash.insert(root_id.clone(), Todo::make_root());
         App {
@@ -90,7 +90,7 @@ impl App {
             config: match Config::load() {
                 Ok(it) => it,
                 Err(_) => Config {
-                    projects: { HashMap::new() },
+                    projects: { BTreeMap::new() },
                 },
             },
             loaded_file: String::new(),
@@ -201,7 +201,7 @@ impl App {
             .resolve_path(str)
             .map_err(|e| notify_error!("Path error", "{}", e))?;
         self.loaded_file = str.clone();
-        let json = serde_json::to_string(&SaveStruct {
+        let json = serde_json::to_string_pretty(&SaveStruct {
             todos: self.todos.clone(),
             version: VERSION_NOW.into(),
         })
@@ -213,8 +213,9 @@ impl App {
         Ok(())
     }
 
+    // имаме проблем. тудо
     fn load_v01(&mut self, contents: String) -> Result<(), String> {
-        let todos = serde_json::from_str::<HashMap<usize, Todo02>>(&contents);
+        let todos = serde_json::from_str::<BTreeMap<usize, Todo02>>(&contents);
         if let Ok(ths) = todos {
             self.todos = ths
                 .into_iter()
@@ -300,7 +301,7 @@ pub(crate) fn detect_version(contents: &str) -> Result<String, String> {
     if let Ok(meta) = serde_json::from_str::<OnlyVersion>(contents) {
         Ok(meta.version)
     } else if serde_json::from_str::<serde_json::Value>(contents).is_ok() {
-        Ok("0.0".into())
+        Ok("0.1".into())
     } else {
         Err("File is not valid JSON".into())
     }
