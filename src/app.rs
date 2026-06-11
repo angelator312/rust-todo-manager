@@ -10,7 +10,7 @@ use crate::{
     todo::{Todo, TodoTypes},
     ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
 };
-use std::collections::{BTreeMap};
+use std::collections::BTreeMap;
 use std::{
     fs::{self, File},
     io::Write,
@@ -28,6 +28,11 @@ pub enum CurrentlyEditing {
 }
 pub type Id = String;
 pub type SaveStruct = SaveStruct03; // last SaveStruct
+enum VersionedData {
+    V01(BTreeMap<usize, Todo02>),
+    V02(SaveStruct02),
+    V03(SaveStruct03), // current
+}
 #[derive(Deserialize, Serialize)]
 pub struct SaveStruct03 {
     pub todos: BTreeMap<String, Todo>,
@@ -212,51 +217,6 @@ impl App {
         Ok(())
     }
 
-    fn load_v01(&mut self, contents: String) -> Result<(), String> {
-        let todos = serde_json::from_str::<BTreeMap<usize, Todo02>>(&contents);
-        if let Ok(ths) = todos {
-            self.todos = ths
-                .into_iter()
-                .map(|(k, v)| {
-                    let mut todo =
-                        Todo::new(v.text, v.todo_type, v.parent.to_string(), v.id.to_string());
-                    todo.children = v.children.into_iter().map(|e| e.to_string()).collect();
-                    return (k.to_string(), todo);
-                })
-                .collect();
-            Ok(())
-        } else {
-            Err("V01 isnt real??".into())
-        }
-    }
-    fn load_v02(&mut self, contents: String) -> Result<(), String> {
-        let todos = serde_json::from_str::<SaveStruct02>(&contents);
-        if let Ok(ths) = todos {
-            self.todos = ths
-                .todos
-                .into_iter()
-                .map(|(k, v)| {
-                    let mut todo =
-                        Todo::new(v.text, v.todo_type, v.parent.to_string(), v.id.to_string());
-                    todo.children = v.children.into_iter().map(|e| e.to_string()).collect();
-                    return (k.to_string(), todo);
-                })
-                .collect();
-            Ok(())
-        } else {
-            Err("V02 isnt real??".into())
-        }
-    }
-
-    fn load_v03(&mut self, contents: String) -> Result<(), String> {
-        let todos = serde_json::from_str::<SaveStruct03>(&contents);
-        if let Ok(ths) = todos {
-            self.todos = ths.todos;
-            Ok(())
-        } else {
-            Err("V03 isnt real??".into())
-        }
-    }
 
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
         let raw_path = str.clone();
@@ -270,16 +230,18 @@ impl App {
             .map_err(|e| notify_error!("Load failed", "Could not read '{}': {}", str, e))?;
         self.id_of_now_root = "0".to_owned(); //root
         self.idx_of_now_selected = 0;
-        if let Ok(ver) = detect_version(&contents) {
-            match &ver[..] {
-                "0.1" => self.load_v01(contents),
-                "0.2" => self.load_v02(contents),
-                "0.3" => self.load_v03(contents),
-                _ => Err("Not implemented version".into()),
-            }
-        } else {
-            Err("Cant get version".to_string())
+        let ver = detect_version(&contents)?;
+        let mut data = load_v(contents, ver)?;
+        if let VersionedData::V01(save) = data {
+            data = VersionedData::V02(migrate_from_01_to_02(save));
         }
+        if let VersionedData::V02(save) = data {
+            data = VersionedData::V03(migrate_from_02_to_03(save));
+        }
+        if let VersionedData::V03(save) = data {
+            self.todos = save.todos
+        }
+        Ok(())
     }
 
     pub(crate) fn delete_now_todo(&mut self) {
@@ -302,5 +264,55 @@ pub(crate) fn detect_version(contents: &str) -> Result<String, String> {
         Ok("0.1".into())
     } else {
         Err("File is not valid JSON".into())
+    }
+}
+fn load_v(contents: String, v: String) -> Result<VersionedData, String> {
+    match &v[..] {
+        "0.1" => {
+            let a = serde_json::from_str::<BTreeMap<usize, Todo02>>(&contents);
+            if let Ok(o) = a {
+                Ok(VersionedData::V01(o))
+            } else {
+                Err("V03 real?".into())
+            }
+        }
+        "0.2" => {
+            let a = serde_json::from_str::<SaveStruct02>(&contents);
+            if let Ok(o) = a {
+                Ok(VersionedData::V02(o))
+            } else {
+                Err("V03 real?".into())
+            }
+        }
+        "0.3" => {
+            let a = serde_json::from_str::<SaveStruct03>(&contents);
+            if let Ok(o) = a {
+                Ok(VersionedData::V03(o))
+            } else {
+                Err("V03 real?".into())
+            }
+        }
+        _ => Err("Version is corrupted".into()),
+    }
+}
+fn migrate_from_01_to_02(contents: BTreeMap<usize, Todo02>) -> SaveStruct02 {
+    SaveStruct02 {
+        todos: contents,
+        version: "0.2".into(),
+    }
+}
+fn migrate_from_02_to_03(contents: SaveStruct02) -> SaveStruct03 {
+    SaveStruct03 {
+        todos: (contents
+            .todos
+            .into_iter()
+            .map(|(k, v)| {
+                let mut todo =
+                    Todo::new(v.text, v.todo_type, v.parent.to_string(), v.id.to_string());
+                todo.children = v.children.into_iter().map(|e| e.to_string()).collect();
+                return (k.to_string(), todo);
+            })
+            .collect()),
+        version: "0.3".into(),
     }
 }
