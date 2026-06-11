@@ -237,7 +237,7 @@
       "id": "33"
     },
     "34": {
-      "todo_type": "Todo",
+      "todo_type": "Done",
       "text": "remove the name in save if its the path to the app",
       "children": [],
       "parent": "21",

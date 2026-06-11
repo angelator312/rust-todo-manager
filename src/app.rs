@@ -30,7 +30,6 @@ pub type Id = String;
 pub type SaveStruct = SaveStruct03; // last SaveStruct
 #[derive(Deserialize, Serialize)]
 pub struct SaveStruct03 {
-    // добре ще пробвам
     pub todos: BTreeMap<String, Todo>,
     pub version: String,
 }
@@ -213,7 +212,6 @@ impl App {
         Ok(())
     }
 
-    // имаме проблем. тудо
     fn load_v01(&mut self, contents: String) -> Result<(), String> {
         let todos = serde_json::from_str::<BTreeMap<usize, Todo02>>(&contents);
         if let Ok(ths) = todos {
