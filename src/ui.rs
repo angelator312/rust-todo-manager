@@ -1,4 +1,4 @@
-use std::cmp::min;
+use std::{cmp::min};
 
 use ratatui::{
     Frame,
@@ -57,7 +57,7 @@ fn render_popup(frame: &mut Frame, title: &str, str: String) {
         .block(popup_block)
         .wrap(Wrap { trim: false });
 
-    let area = centered_rect(60, 25, frame.area());
+    let area = centered_rect(60, 40, frame.area());
     frame.render_widget(Clear, area); //this clears the entire screen and anything already drawn
     frame.render_widget(exit_paragraph, area);
 }
@@ -88,11 +88,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         Constraint::Percentage(perc_for_todo_type),
     ];
     let w = (((100 - perc_for_todo_type) as f64 / 100.0) * term_cols as f64).floor() as usize;
-    for key in app.tree[&app.id_of_now_root]
-        .children
-        .clone()
-        .iter()
-    {
+    for key in app.tree[&app.id_of_now_root].children.clone().iter() {
         let mut str: String =
             app.todos[key].text.clone()[..min(w - 3, app.todos[key].text.len())].into();
         if app.todos[key].text.len() > w - 3 {
@@ -182,7 +178,16 @@ pub fn ui(frame: &mut Frame, app: &App) {
             _ => "",
         }
         .into();
-        render_popup(frame, for_quit_str, str + &app.text_input);
+        if app.text_input.starts_with("$") {
+            let mut str = str + &app.text_input + "\n";
+            for e in app.config.list_projects().iter().filter(|f| f.starts_with(&app.text_input[..])) {
+                str += e;
+                str += "\n";
+            }
+            render_popup(frame, for_quit_str, str);
+        } else {
+            render_popup(frame, for_quit_str, str + &app.text_input);
+        }
     } else if let CurrentScreen::Deleting = app.current_screen {
         let str: String = "Type 'y' so we can be sure\n".into();
         render_popup(frame, "Y/N", str + &app.text_input);

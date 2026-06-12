@@ -209,6 +209,11 @@
       "todo_type": "WorkInProgress",
       "text": "think about better load\nIt needs to be like\n01.=>0.2=>0.3\n=> is One function",
       "id": "uPCBtGKZKsvbb47M9JJ6M"
+    },
+    "wxSluArNwv8mmpLovXPqJ": {
+      "todo_type": "WorkInProgress",
+      "text": "$project:path syntax for adding new projects\n$ for listing all projects\n",
+      "id": "wxSluArNwv8mmpLovXPqJ"
     }
   },
   "tree": {
@@ -323,6 +328,7 @@
         "34",
         "39",
         "37",
+        "wxSluArNwv8mmpLovXPqJ",
         "41",
         "38",
         "40"
@@ -473,6 +479,11 @@
       "children": [],
       "parent": "36",
       "id": "uPCBtGKZKsvbb47M9JJ6M"
+    },
+    "wxSluArNwv8mmpLovXPqJ": {
+      "children": [],
+      "parent": "21",
+      "id": "wxSluArNwv8mmpLovXPqJ"
     }
   },
   "version": "0.4"
