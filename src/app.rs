@@ -199,7 +199,7 @@ impl App {
         self.todo_type = self.todo_type.prev();
     }
     pub(crate) fn get_id_of_now_selected(&self) -> Option<Id> {
-        if self.tree[&self.id_of_now_root].children.len() == 0 {
+        if self.tree[&self.id_of_now_root].children.is_empty() {
             None
         } else {
             Some(self.tree[&self.id_of_now_root].children[self.idx_of_now_selected].clone())
@@ -266,7 +266,7 @@ impl App {
 
     pub(crate) fn delete_now_todo(&mut self) {
         let id = &self.get_id_of_now_selected().unwrap();
-        if self.tree.get(id).unwrap().children.len() > 0 {
+        if !self.tree.get(id).unwrap().children.is_empty() {
             notifications::warning(
                 "Cannot delete",
                 "This todo has subtodos. Delete them first.",
