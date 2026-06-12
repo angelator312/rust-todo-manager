@@ -90,7 +90,7 @@ where
                         app.text_input = String::from("");
                     }
                     KeyCode::Down => {
-                        if app.todos[&app.id_of_now_root].children.len()
+                        if app.tree[&app.id_of_now_root].children.len()
                             > app.idx_of_now_selected + 1
                         {
                             app.idx_of_now_selected += 1;
@@ -110,14 +110,14 @@ where
                         }
                     }
                     KeyCode::Left => {
-                        if let Some(a) = app.todos[&app.todos[&app.id_of_now_root].parent]
+                        if let Some(a) = app.tree[&app.tree[&app.id_of_now_root].parent]
                             .children
                             .iter()
-                            .position(|x| x == app.todos[&app.id_of_now_root].id())
+                            .position(|x| *x == app.tree[&app.id_of_now_root].id)
                         {
                             app.idx_of_now_selected = a;
                         }
-                        app.id_of_now_root = app.todos[&app.id_of_now_root].parent.clone();
+                        app.id_of_now_root = app.tree[&app.id_of_now_root].parent.clone();
                         app.path_to_now_todo.pop();
                     }
                     _ => {}

@@ -88,7 +88,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         Constraint::Percentage(perc_for_todo_type),
     ];
     let w = (((100 - perc_for_todo_type) as f64 / 100.0) * term_cols as f64).floor() as usize;
-    for (_idx, key) in app.todos[&app.id_of_now_root]
+    for (_idx, key) in app.tree[&app.id_of_now_root]
         .children
         .clone()
         .iter()

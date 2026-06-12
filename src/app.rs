@@ -4,6 +4,7 @@ use ratatui_textarea::TextArea;
 use serde::{Deserialize, Serialize};
 
 use crate::notify_error;
+use crate::todo::{Todo03, TodoNode};
 use crate::{
     config::Config,
     notifications,
@@ -27,15 +28,23 @@ pub enum CurrentlyEditing {
     TodoType,
 }
 pub type Id = String;
-pub type SaveStruct = SaveStruct03; // last SaveStruct
+pub type SaveStruct = SaveStruct04; // last SaveStruct
 enum VersionedData {
     V01(BTreeMap<usize, Todo02>),
     V02(SaveStruct02),
-    V03(SaveStruct03), // current
+    V03(SaveStruct03),
+    V04(SaveStruct04),
 }
 #[derive(Deserialize, Serialize)]
 pub struct SaveStruct03 {
+    pub todos: BTreeMap<String, Todo03>,
+    pub version: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct SaveStruct04 {
     pub todos: BTreeMap<String, Todo>,
+    pub tree: BTreeMap<String, TodoNode>,
     pub version: String,
 }
 
@@ -68,28 +77,31 @@ pub struct App {
     pub idx_of_now_selected: usize,
     pub id_of_now_editing: Id,
     pub todos: BTreeMap<Id, Todo>,
+    pub tree: BTreeMap<Id, TodoNode>,
     pub is_new: bool,
     pub config: Config,
     pub loaded_file: String,
     pub path_to_now_todo: Vec<String>,
     pub textarea: TextArea<'static>,
 }
-const VERSION_NOW: &str = "0.3";
+const VERSION_NOW: &str = "0.4";
 impl App {
     pub fn new() -> App {
         let mut hash = BTreeMap::new();
+        let mut tree = BTreeMap::new();
         let root_id: String = "0".to_owned();
         hash.insert(root_id.clone(), Todo::make_root());
+        tree.insert(root_id.clone(), TodoNode::make_root());
         App {
             text_input: String::new(),
             todo_type: TodoTypes::Todo,
-            // todos: vec![],
             current_screen: CurrentScreen::Main,
             currently_editing: None,
             id_of_now_root: root_id.clone(),
             id_of_now_editing: root_id,
             idx_of_now_selected: 0,
             todos: hash,
+            tree,
             is_new: false,
             config: match Config::load() {
                 Ok(it) => it,
@@ -131,14 +143,18 @@ impl App {
     }
     pub fn save_todo(&mut self) {
         if self.is_new {
+            self.tree.insert(
+                self.id_of_now_editing.clone(),
+                TodoNode::new(
+                    self.id_of_now_editing.clone(),
+                    self.id_of_now_root.clone(),
+                    vec![],
+                ),
+            );
+            // self.id_of_now_root.clone(),
             self.todos.insert(
                 self.id_of_now_editing.clone(),
-                Todo::new(
-                    "".into(),
-                    TodoTypes::Todo,
-                    self.id_of_now_root.clone(),
-                    self.id_of_now_editing.clone(),
-                ),
+                Todo::new("".into(), TodoTypes::Todo, self.id_of_now_editing.clone()),
             );
         }
         if let Some(refer) = self.todos.get_mut(&self.id_of_now_editing) {
@@ -146,7 +162,7 @@ impl App {
             refer.todo_type = self.todo_type.clone();
         }
         if self.is_new {
-            self.todos
+            self.tree
                 .get_mut(&self.id_of_now_root)
                 .unwrap()
                 .children
@@ -183,10 +199,10 @@ impl App {
         self.todo_type = self.todo_type.prev();
     }
     pub(crate) fn get_id_of_now_selected(&self) -> Option<Id> {
-        if self.todos[&self.id_of_now_root].children.len() == 0 {
+        if self.tree[&self.id_of_now_root].children.len() == 0 {
             None
         } else {
-            Some(self.todos[&self.id_of_now_root].children[self.idx_of_now_selected].clone())
+            Some(self.tree[&self.id_of_now_root].children[self.idx_of_now_selected].clone())
         }
     }
     pub(crate) fn resolve_path(&self, str: String) -> Result<String, String> {
@@ -207,6 +223,7 @@ impl App {
         self.loaded_file = str.clone();
         let json = serde_json::to_string_pretty(&SaveStruct {
             todos: self.todos.clone(),
+            tree: self.tree.clone(),
             version: VERSION_NOW.into(),
         })
         .map_err(|e| notify_error!("Save failed", "Failed to serialize todos: {}", e))?;
@@ -216,7 +233,6 @@ impl App {
             .map_err(|e| notify_error!("Save failed", "Could not write to '{}': {}", str, e))?;
         Ok(())
     }
-
 
     pub(crate) fn load(&mut self, str: String) -> Result<(), String> {
         let raw_path = str.clone();
@@ -239,14 +255,25 @@ impl App {
             data = VersionedData::V03(migrate_from_02_to_03(save));
         }
         if let VersionedData::V03(save) = data {
-            self.todos = save.todos
+            data = VersionedData::V04(migrate_from_03_to_04(save));
+        }
+        if let VersionedData::V04(save) = data {
+            self.todos = save.todos;
+            self.tree = save.tree;
         }
         Ok(())
     }
 
     pub(crate) fn delete_now_todo(&mut self) {
         let id = &self.get_id_of_now_selected().unwrap();
-        self.todos
+        if self.tree.get(id).unwrap().children.len() > 0 {
+            notifications::warning(
+                "Cannot delete",
+                "This todo has subtodos. Delete them first.",
+            );
+            return;
+        }
+        self.tree
             .get_mut(&self.id_of_now_root)
             .unwrap()
             .children
@@ -255,6 +282,7 @@ impl App {
             self.idx_of_now_selected -= 1
         }
         self.todos.remove(id);
+        self.tree.remove(id);
     }
 }
 pub(crate) fn detect_version(contents: &str) -> Result<String, String> {
@@ -273,7 +301,7 @@ fn load_v(contents: String, v: String) -> Result<VersionedData, String> {
             if let Ok(o) = a {
                 Ok(VersionedData::V01(o))
             } else {
-                Err("V03 real?".into())
+                Err("V01 real?".into())
             }
         }
         "0.2" => {
@@ -281,7 +309,7 @@ fn load_v(contents: String, v: String) -> Result<VersionedData, String> {
             if let Ok(o) = a {
                 Ok(VersionedData::V02(o))
             } else {
-                Err("V03 real?".into())
+                Err("V02 real?".into())
             }
         }
         "0.3" => {
@@ -290,6 +318,14 @@ fn load_v(contents: String, v: String) -> Result<VersionedData, String> {
                 Ok(VersionedData::V03(o))
             } else {
                 Err("V03 real?".into())
+            }
+        }
+        "0.4" => {
+            let a = serde_json::from_str::<SaveStruct04>(&contents);
+            if let Ok(o) = a {
+                Ok(VersionedData::V04(o))
+            } else {
+                Err("V04 real?".into())
             }
         }
         _ => Err("Version is corrupted".into()),
@@ -307,12 +343,42 @@ fn migrate_from_02_to_03(contents: SaveStruct02) -> SaveStruct03 {
             .todos
             .into_iter()
             .map(|(k, v)| {
-                let mut todo =
-                    Todo::new(v.text, v.todo_type, v.parent.to_string(), v.id.to_string());
+                let mut todo = Todo03 {
+                    text: v.text,
+                    todo_type: v.todo_type,
+                    parent: v.parent.to_string(),
+                    id: v.id.to_string(),
+                    children: vec![],
+                };
                 todo.children = v.children.into_iter().map(|e| e.to_string()).collect();
                 return (k.to_string(), todo);
             })
             .collect()),
         version: "0.3".into(),
+    }
+}
+fn migrate_from_03_to_04(contents: SaveStruct03) -> SaveStruct04 {
+    SaveStruct04 {
+        todos: contents
+            .todos
+            .iter()
+            .map(|f| {
+                (
+                    f.0.clone(),
+                    Todo::new(f.1.text.clone(), f.1.todo_type.clone(), f.1.id.clone()),
+                )
+            })
+            .collect(),
+        tree: contents
+            .todos
+            .iter()
+            .map(|f| {
+                (
+                    f.0.clone(),
+                    TodoNode::new(f.1.id.clone(), f.1.parent.clone(), f.1.children.clone()),
+                )
+            })
+            .collect(),
+        version: "0.4".into(),
     }
 }

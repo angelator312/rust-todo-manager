@@ -43,9 +43,40 @@ impl Display for TodoTypes {
 pub struct Todo {
     pub todo_type: TodoTypes,
     pub text: String,
+    pub id: Id,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct Todo03 {
+    pub todo_type: TodoTypes,
+    pub text: String,
     pub children: Vec<Id>,
     pub parent: Id,
-    id: Id,
+    pub id: Id,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct TodoNode {
+    pub children: Vec<Id>,
+    pub parent: Id,
+    pub id: Id,
+}
+
+impl TodoNode {
+    pub(crate) fn make_root() -> Self {
+        Self {
+            children: vec![],
+            parent: "0".into(),
+            id: "0".into(),
+        }
+    }
+    pub(crate) fn new(id: Id, parent: Id, children: Vec<Id>) -> TodoNode {
+        Self {
+            id,
+            children,
+            parent,
+        }
+    }
 }
 
 impl Todo {
@@ -53,22 +84,15 @@ impl Todo {
         Self {
             todo_type: TodoTypes::Done,
             text: "RootOfAll 1".into(),
-            children: vec![],
-            parent: "0".into(),
             id: "0".into(),
         }
     }
-    pub(crate) fn new(text: String, todo_type: TodoTypes, parent: Id, id: Id) -> Self {
+    pub(crate) fn new(text: String, todo_type: TodoTypes, id: Id) -> Self {
         Self {
             todo_type,
             text,
-            children: vec![],
-            parent,
             id,
         }
-    }
-    pub fn id(&self) -> &Id {
-        &self.id
     }
 }
 impl Display for Todo {
