@@ -146,12 +146,12 @@
       "id": "35"
     },
     "36": {
-      "todo_type": "WorkInProgress",
+      "todo_type": "Done",
       "text": "refactor the save\nSave {version,tree from {parent,id,children:vec![nanoid]},hasmap<nanoid,Todo>,data}\nTodo - Text, Type, TimeOfCreated....\nalso for every new verison\nnew function load_version...\nand to get the version just {version:string}\nand from the version we get which load_version to use\n\n",
       "id": "36"
     },
     "37": {
-      "todo_type": "Todo",
+      "todo_type": "Done",
       "text": "add a way to move todos\nLike alt-arrow",
       "id": "37"
     },
@@ -161,7 +161,7 @@
       "id": "38"
     },
     "39": {
-      "todo_type": "Todo",
+      "todo_type": "WorkInProgress",
       "text": "refactor a bunch of things\nall things listed ../refactors\n\n\n",
       "id": "39"
     },
@@ -323,9 +323,9 @@
         "34",
         "39",
         "37",
+        "41",
         "38",
-        "40",
-        "41"
+        "40"
       ],
       "parent": "0",
       "id": "21"

@@ -1,4 +1,4 @@
-use crossterm::event::{self, Event, KeyCode, KeyEventKind};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::Terminal;
 use ratatui::crossterm::event::{DisableMouseCapture, EnableMouseCapture};
 use ratatui::crossterm::execute;
@@ -90,15 +90,39 @@ where
                         app.text_input = String::from("");
                     }
                     KeyCode::Down => {
-                        if app.tree[&app.id_of_now_root].children.len()
-                            > app.idx_of_now_selected + 1
-                        {
-                            app.idx_of_now_selected += 1;
+                        if key.modifiers.contains(KeyModifiers::ALT) {
+                            if app.idx_of_now_selected
+                                < app.tree.get(&app.id_of_now_root).unwrap().children.len() - 1
+                            {
+                                app.tree
+                                    .get_mut(&app.id_of_now_root)
+                                    .unwrap()
+                                    .children
+                                    .swap(app.idx_of_now_selected, app.idx_of_now_selected + 1);
+                                app.idx_of_now_selected += 1;
+                            }
+                        } else {
+                            if app.tree[&app.id_of_now_root].children.len()
+                                > app.idx_of_now_selected + 1
+                            {
+                                app.idx_of_now_selected += 1;
+                            }
                         }
                     }
                     KeyCode::Up => {
-                        if app.idx_of_now_selected > 0 {
-                            app.idx_of_now_selected -= 1;
+                        if key.modifiers.contains(KeyModifiers::ALT) {
+                            if app.idx_of_now_selected > 0 {
+                                app.tree
+                                    .get_mut(&app.id_of_now_root)
+                                    .unwrap()
+                                    .children
+                                    .swap(app.idx_of_now_selected, app.idx_of_now_selected - 1);
+                                app.idx_of_now_selected -= 1;
+                            }
+                        } else {
+                            if app.idx_of_now_selected > 0 {
+                                app.idx_of_now_selected -= 1;
+                            }
                         }
                     }
                     KeyCode::Right => {

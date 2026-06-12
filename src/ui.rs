@@ -88,11 +88,10 @@ pub fn ui(frame: &mut Frame, app: &App) {
         Constraint::Percentage(perc_for_todo_type),
     ];
     let w = (((100 - perc_for_todo_type) as f64 / 100.0) * term_cols as f64).floor() as usize;
-    for (_idx, key) in app.tree[&app.id_of_now_root]
+    for key in app.tree[&app.id_of_now_root]
         .children
         .clone()
         .iter()
-        .enumerate()
     {
         let mut str: String =
             app.todos[key].text.clone()[..min(w - 3, app.todos[key].text.len())].into();
