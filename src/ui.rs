@@ -5,7 +5,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Clear, Paragraph, Row, Table, TableState, Wrap},
+    widgets::{Block, Borders, Clear, List, Paragraph, Row, Table, TableState, Wrap},
 };
 
 use crate::{
@@ -163,6 +163,14 @@ pub fn ui(frame: &mut Frame, app: &App) {
         frame.render_widget(&app.textarea, popup_chunks[0]);
 
         frame.render_widget(&app.todo_type, type_chunks[0]);
+        let pat = app.todo_type.lines().join("");
+        let mut lines_auto_complete: Vec<String> = vec![];
+        for e in (app.all_todo_types).clone() {
+            if e.starts_with(&pat) {
+                lines_auto_complete.push(e);
+            }
+        }
+        frame.render_widget(List::new(lines_auto_complete), type_chunks[1]);
     }
     let for_quit_str = if let CurrentScreen::Exiting { for_quit } = app.current_screen {
         match for_quit {

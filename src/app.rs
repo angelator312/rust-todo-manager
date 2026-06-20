@@ -66,6 +66,7 @@ pub struct OnlyVersion {
 
 pub struct App {
     pub todo_type: TextArea<'static>,
+    pub all_todo_types:Vec<String>,
     pub text_input: String,
     pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
     pub currently_editing: Option<CurrentlyEditing>,
@@ -90,6 +91,7 @@ impl App {
         tree.insert(root_id.clone(), TodoNode::make_root());
         App {
             text_input: String::new(),
+            all_todo_types:vec!["Todo: Todo".into(),"Todo: Done".into(),"Todo: WIP".into()],
             todo_type: TextArea::new(vec!["Todo: Todo".into()]),
             current_screen: CurrentScreen::Main,
             currently_editing: None,
@@ -150,7 +152,11 @@ impl App {
             // self.id_of_now_root.clone(),
             self.todos.insert(
                 self.id_of_now_editing.clone(),
-                Todo::new("".into(), "Todo: Todo".into(), self.id_of_now_editing.clone()),
+                Todo::new(
+                    "".into(),
+                    "Todo: Todo".into(),
+                    self.id_of_now_editing.clone(),
+                ),
             );
         }
         if let Some(refer) = self.todos.get_mut(&self.id_of_now_editing) {
@@ -391,11 +397,11 @@ fn migrate_from_04_to_05(contents: SaveStruct04) -> SaveStruct04 {
                     Todo {
                         id: f.1.id.clone(),
                         text: f.1.text.clone(),
-                        todo_type:  match &f.1.todo_type[..] {
-                            "Done"=>"Todo: Done".into(),
-                            "Todo"=>"Todo: Todo".into(),
-                            "WorkInProgress"=>"Todo: WIP".into(),
-                            _=>"PROBLEM".into(),
+                        todo_type: match &f.1.todo_type[..] {
+                            "Done" => "Todo: Done".into(),
+                            "Todo" => "Todo: Todo".into(),
+                            "WorkInProgress" => "Todo: WIP".into(),
+                            _ => "PROBLEM".into(),
                         },
                     },
                 );
