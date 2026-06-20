@@ -1,217 +1,217 @@
 {
   "todos": {
     "0": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "RootOfAll 42",
       "id": "0"
     },
     "1": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "better visuals",
       "id": "1"
     },
     "10": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "noftifications when the app isn't running",
       "id": "10"
     },
     "11": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "see all parents like in a file view",
       "id": "11"
     },
     "12": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "refactorings",
       "id": "12"
     },
     "13": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "add ids using nanoid",
       "id": "13"
     },
     "14": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "things about $projects",
       "id": "14"
     },
     "15": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "add a way to change/define new projects",
       "id": "15"
     },
     "16": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "ctrl-enter",
       "id": "16"
     },
     "17": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "cursor movement",
       "id": "17"
     },
     "18": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "quality of life improvements(that arent listed elsewhere)",
       "id": "18"
     },
     "19": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "prefill the load with the filename which is used in the start",
       "id": "19"
     },
     "2": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "noftification support",
       "id": "2"
     },
     "20": {
-      "todo_type": "WorkInProgress",
+      "todo_type": "Todo: WIP",
       "text": "add support for charecters that aren't english - like cyrillic",
       "id": "20"
     },
     "21": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "Most Important",
       "id": "21"
     },
     "22": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "All Colors in predefined Styles",
       "id": "22"
     },
     "23": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "Show cursor when editing text - ratatui-textarea or ratatui-code-editor",
       "id": "23"
     },
     "24": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "Use table to show list of todos.",
       "id": "24"
     },
     "25": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "Add file selector for load/save - for example ratatui-explorer",
       "id": "25"
     },
     "26": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "on save, prepopualte currently loaded file. Use save/load dialog with save/load button. Shortcut for save button (s), for quit (q) similar for load",
       "id": "26"
     },
     "28": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "use https://github.com/Brainwires/ratatui-interact for input and button",
       "id": "28"
     },
     "29": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "Todo manager : path to now todo",
       "id": "29"
     },
     "3": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "better navigation",
       "id": "3"
     },
     "30": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "add a way to load with arguments",
       "id": "30"
     },
     "31": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "Better README",
       "id": "31"
     },
     "32": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "Maybe use it for docs, or how to contribute",
       "id": "32"
     },
     "33": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "make the text trims if its too big",
       "id": "33"
     },
     "34": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "remove the name in save if its the path to the app",
       "id": "34"
     },
     "35": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "make two enums\nTodo,Note\nTodo: Todo->WIP->Done\nNote:Note\nenum TodoType{\nTodo {status:TodoStatus}\nNote \n}\n",
       "id": "35"
     },
     "36": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "refactor the save\nSave {version,tree from {parent,id,children:vec![nanoid]},hasmap<nanoid,Todo>,data}\nTodo - Text, Type, TimeOfCreated....\nalso for every new verison\nnew function load_version...\nand to get the version just {version:string}\nand from the version we get which load_version to use\n\n",
       "id": "36"
     },
     "37": {
-      "todo_type": "Done",
+      "todo_type": "Todo: Done",
       "text": "add a way to move todos\nLike alt-arrow",
       "id": "37"
     },
     "38": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "add a a way to make dependencies of a todo\n",
       "id": "38"
     },
     "39": {
-      "todo_type": "WorkInProgress",
+      "todo_type": "Todo: WIP",
       "text": "refactor a bunch of things\nall things listed ../refactors\n\n\n",
       "id": "39"
     },
     "4": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "todo editors",
       "id": "4"
     },
     "40": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "noftifications need to be in the app",
       "id": "40"
     },
     "41": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "fuzzy search\nf - find in the ones you see\nctrl+f - find in all todos\n",
       "id": "41"
     },
     "5": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "on long messages better view - in main screen",
       "id": "5"
     },
     "6": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "on long messages bigger popup in editing todo popup",
       "id": "6"
     },
     "7": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "better todo visualizing",
       "id": "7"
     },
     "8": {
-      "todo_type": "WorkInProgress",
+      "todo_type": "Todo: WIP",
       "text": "smaller todo type box",
       "id": "8"
     },
     "9": {
-      "todo_type": "Todo",
+      "todo_type": "Todo: Todo",
       "text": "only see noftification when the app is running",
       "id": "9"
     },
     "uPCBtGKZKsvbb47M9JJ6M": {
-      "todo_type": "WorkInProgress",
+      "todo_type": "Todo: Done",
       "text": "think about better load\nIt needs to be like\n01.=>0.2=>0.3\n=> is One function",
       "id": "uPCBtGKZKsvbb47M9JJ6M"
     },
     "wxSluArNwv8mmpLovXPqJ": {
-      "todo_type": "WorkInProgress",
+      "todo_type": "Todo: WIP",
       "text": "$project:path syntax for adding new projects\n$ for listing all projects\n",
       "id": "wxSluArNwv8mmpLovXPqJ"
     }
