@@ -1,6 +1,6 @@
 use color_eyre::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap};
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
 

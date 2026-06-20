@@ -185,12 +185,6 @@ impl App {
         }
     }
 
-    pub(crate) fn switch_to_next_type(&mut self) {
-        //think
-    }
-    pub(crate) fn switch_to_prev_type(&mut self) {
-        //think
-    }
     pub(crate) fn get_id_of_now_selected(&self) -> Option<Id> {
         if self.tree[&self.id_of_now_root].children.is_empty() {
             None
