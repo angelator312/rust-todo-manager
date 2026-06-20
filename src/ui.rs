@@ -160,19 +160,6 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .style(DIALOG_STYLE);
         frame.render_widget(type_block, popup_chunks[1]);
 
-        let mut value_block = Block::default().title("Type").borders(Borders::ALL);
-
-        match editing {
-            CurrentlyEditing::TodoType => {
-                value_block = value_block.border_style(DIALOG_EDITOR_ACTIVE_TAB)
-            }
-            _ => {}
-        };
-
-        // let mut key_text = app.textarea;
-        // key_text.set_block(key_block);
-        // .block(key_block)
-        // .wrap(Wrap { trim: true });
         frame.render_widget(&app.textarea, popup_chunks[0]);
 
         frame.render_widget(&app.todo_type, type_chunks[0]);
