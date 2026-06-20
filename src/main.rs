@@ -205,6 +205,26 @@ where
                         app.save_todo();
                         app.current_screen = CurrentScreen::Main;
                     }
+                    KeyCode::Enter
+                        if matches!(
+                            app.currently_editing,
+                            Some(CurrentlyEditing::TodoTypeAutoComplete)
+                        ) =>
+                    {
+                        let pat = app.todo_type.lines().join("");
+                        let mut lines_auto_complete: Vec<String> = vec![];
+                        for e in (app.all_todo_types).clone() {
+                            if e.starts_with(&pat) {
+                                lines_auto_complete.push(e);
+                            }
+                        }
+                        app.todo_type.clear();
+                        app.todo_type
+                            .insert_str(lines_auto_complete[app.idx_of_helper].clone());
+                        app.todo_type.move_cursor(ratatui_textarea::CursorMove::Top);
+                        app.todo_type
+                            .move_cursor(ratatui_textarea::CursorMove::Head);
+                    }
                     KeyCode::Esc => {
                         app.current_screen = CurrentScreen::Main;
                         app.currently_editing = None;
@@ -212,10 +232,30 @@ where
                     KeyCode::Tab => {
                         app.toggle_editing();
                     }
+                    KeyCode::Down
+                        if matches!(
+                            app.currently_editing,
+                            Some(CurrentlyEditing::TodoTypeAutoComplete)
+                        ) =>
+                    {
+                        app.idx_of_helper += 1;
+                    }
+                    KeyCode::Up
+                        if matches!(
+                            app.currently_editing,
+                            Some(CurrentlyEditing::TodoTypeAutoComplete)
+                        ) =>
+                    {
+                        if app.idx_of_helper > 0 {
+                            app.idx_of_helper -= 1;
+                        }
+                    }
                     _ => {
                         if matches!(app.currently_editing, Some(CurrentlyEditing::TodoText)) {
                             app.textarea.input(key);
-                        } else {
+                        } else if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType))
+                        {
+                            app.idx_of_helper = 0;
                             app.todo_type.input(key);
                         }
                     }

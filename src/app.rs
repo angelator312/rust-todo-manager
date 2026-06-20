@@ -21,6 +21,7 @@ pub enum CurrentScreen {
 pub enum CurrentlyEditing {
     TodoText,
     TodoType,
+    TodoTypeAutoComplete,
 }
 pub type Id = String;
 pub type SaveStruct = SaveStruct04; // last SaveStruct
@@ -65,8 +66,9 @@ pub struct OnlyVersion {
 }
 
 pub struct App {
+    pub idx_of_helper: usize,
     pub todo_type: TextArea<'static>,
-    pub all_todo_types:Vec<String>,
+    pub all_todo_types: Vec<String>,
     pub text_input: String,
     pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
     pub currently_editing: Option<CurrentlyEditing>,
@@ -91,8 +93,14 @@ impl App {
         tree.insert(root_id.clone(), TodoNode::make_root());
         App {
             text_input: String::new(),
-            all_todo_types:vec!["Todo: Todo".into(),"Todo: Done".into(),"Todo: WIP".into()],
-            todo_type: TextArea::new(vec!["Todo: Todo".into()]),
+            all_todo_types: vec![
+                "Todo: Todo".into(),
+                "Todo: WIP".into(),
+                "Todo: Done".into(),
+                "Note".into(),
+            ],
+            todo_type: TextArea::new(vec!["".into()]),
+            idx_of_helper: 0,
             current_screen: CurrentScreen::Main,
             currently_editing: None,
             id_of_now_root: root_id.clone(),
@@ -117,7 +125,7 @@ impl App {
         self.current_screen = CurrentScreen::Editing;
         self.currently_editing = Some(CurrentlyEditing::TodoText);
         self.text_input = "".into();
-        self.todo_type = TextArea::new(vec!["Todo: Todo".into()]);
+        self.todo_type = TextArea::new(vec![]);
         self.id_of_now_editing = nanoid!();
         self.textarea.clear();
         self.textarea.insert_str(self.text_input.clone());
@@ -127,6 +135,7 @@ impl App {
     }
 
     pub fn start_edit_of_todo(&mut self, id: Id) {
+        self.idx_of_helper = 0;
         self.is_new = false;
         self.current_screen = CurrentScreen::Editing;
         self.currently_editing = Some(CurrentlyEditing::TodoText);
@@ -171,7 +180,7 @@ impl App {
                 .push(self.id_of_now_editing.clone());
         }
         self.text_input = String::new();
-        self.todo_type = TextArea::new(vec!["Todo: Todo".into()]);
+        self.todo_type = TextArea::new(vec![]);
         self.currently_editing = None;
     }
     pub fn toggle_editing(&mut self) {
@@ -181,6 +190,9 @@ impl App {
                     self.currently_editing = Some(CurrentlyEditing::TodoType)
                 }
                 CurrentlyEditing::TodoType => {
+                    self.currently_editing = Some(CurrentlyEditing::TodoTypeAutoComplete)
+                }
+                CurrentlyEditing::TodoTypeAutoComplete => {
                     self.currently_editing = Some(CurrentlyEditing::TodoText)
                 }
             };

@@ -5,7 +5,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::{Line, Span, Text},
-    widgets::{Block, Borders, Clear, List, Paragraph, Row, Table, TableState, Wrap},
+    widgets::{Block, Borders, Clear, List, ListState, Paragraph, Row, Table, TableState, Wrap},
 };
 
 use crate::{
@@ -154,8 +154,8 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .title("Type")
             .borders(Borders::ALL)
             .border_style(match editing {
-                CurrentlyEditing::TodoType => DIALOG_EDITOR_ACTIVE_TAB,
-                _ => DIALOG_STYLE,
+                CurrentlyEditing::TodoText => DIALOG_STYLE,
+                _ => DIALOG_EDITOR_ACTIVE_TAB,
             })
             .style(DIALOG_STYLE);
         frame.render_widget(type_block, popup_chunks[1]);
@@ -170,7 +170,13 @@ pub fn ui(frame: &mut Frame, app: &App) {
                 lines_auto_complete.push(e);
             }
         }
-        frame.render_widget(List::new(lines_auto_complete), type_chunks[1]);
+        let mut state = ListState::default();
+        state.select(Some(app.idx_of_helper));
+        frame.render_stateful_widget(
+            List::new(lines_auto_complete).highlight_symbol(">>"),
+            type_chunks[1],
+            &mut state,
+        );
     }
     let for_quit_str = if let CurrentScreen::Exiting { for_quit } = app.current_screen {
         match for_quit {
