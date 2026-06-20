@@ -145,6 +145,21 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .margin(1)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(area);
+        let type_chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .margin(1)
+            .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
+            .split(popup_chunks[1]);
+        let type_block = Block::default()
+            .title("Type")
+            .borders(Borders::ALL)
+            .border_style(match editing {
+                CurrentlyEditing::TodoType => DIALOG_EDITOR_ACTIVE_TAB,
+                _ => DIALOG_STYLE,
+            })
+            .style(DIALOG_STYLE);
+        frame.render_widget(type_block, popup_chunks[1]);
+
         let mut value_block = Block::default().title("Type").borders(Borders::ALL);
 
         match editing {
@@ -160,8 +175,7 @@ pub fn ui(frame: &mut Frame, app: &App) {
         // .wrap(Wrap { trim: true });
         frame.render_widget(&app.textarea, popup_chunks[0]);
 
-        let value_text = Paragraph::new(app.todo_type.to_string()).block(value_block);
-        frame.render_widget(value_text, popup_chunks[1]);
+        frame.render_widget(&app.todo_type, type_chunks[0]);
     }
     let for_quit_str = if let CurrentScreen::Exiting { for_quit } = app.current_screen {
         match for_quit {

@@ -5,12 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::notify_error;
 use crate::todo::{Todo03, TodoNode};
-use crate::{
-    config::Config,
-    notifications,
-    todo::{Todo, TodoTypes},
-    ui::{DIALOG_EDITOR_ACTIVE_TAB, DIALOG_STYLE},
-};
+use crate::{config::Config, notifications, todo::Todo};
 use std::collections::BTreeMap;
 use std::{
     fs::{self, File},
@@ -34,6 +29,7 @@ enum VersionedData {
     V02(SaveStruct02),
     V03(SaveStruct03),
     V04(SaveStruct04),
+    V05(SaveStruct04),
 }
 #[derive(Deserialize, Serialize)]
 pub struct SaveStruct03 {
@@ -56,7 +52,7 @@ pub struct SaveStruct02 {
 
 #[derive(Deserialize, Serialize)]
 pub struct Todo02 {
-    pub todo_type: TodoTypes,
+    pub todo_type: String,
     pub text: String,
     pub children: Vec<usize>,
     pub parent: usize,
@@ -69,8 +65,8 @@ pub struct OnlyVersion {
 }
 
 pub struct App {
-    pub todo_type: TodoTypes,          // the currently being edited json key.
-    pub text_input: String,            // the currently being edited json key.
+    pub todo_type: TextArea<'static>,
+    pub text_input: String,
     pub current_screen: CurrentScreen, // the current screen the user is looking at, and will later determine what is rendered.
     pub currently_editing: Option<CurrentlyEditing>,
     pub id_of_now_root: Id,
@@ -94,7 +90,7 @@ impl App {
         tree.insert(root_id.clone(), TodoNode::make_root());
         App {
             text_input: String::new(),
-            todo_type: TodoTypes::Todo,
+            todo_type: TextArea::new(vec!["Todo: Todo".into()]),
             current_screen: CurrentScreen::Main,
             currently_editing: None,
             id_of_now_root: root_id.clone(),
@@ -119,7 +115,7 @@ impl App {
         self.current_screen = CurrentScreen::Editing;
         self.currently_editing = Some(CurrentlyEditing::TodoText);
         self.text_input = "".into();
-        self.todo_type = TodoTypes::Todo;
+        self.todo_type = TextArea::new(vec!["Todo: Todo".into()]);
         self.id_of_now_editing = nanoid!();
         self.textarea.clear();
         self.textarea.insert_str(self.text_input.clone());
@@ -133,7 +129,7 @@ impl App {
         self.current_screen = CurrentScreen::Editing;
         self.currently_editing = Some(CurrentlyEditing::TodoText);
         self.text_input = self.todos[&id].text.clone();
-        self.todo_type = self.todos[&id].todo_type.clone();
+        self.todo_type = self.todos[&id].todo_type.lines().collect();
         self.id_of_now_editing = id.clone();
         self.textarea.clear();
         self.textarea.insert_str(self.text_input.clone());
@@ -154,12 +150,12 @@ impl App {
             // self.id_of_now_root.clone(),
             self.todos.insert(
                 self.id_of_now_editing.clone(),
-                Todo::new("".into(), TodoTypes::Todo, self.id_of_now_editing.clone()),
+                Todo::new("".into(), "Todo: Todo".into(), self.id_of_now_editing.clone()),
             );
         }
         if let Some(refer) = self.todos.get_mut(&self.id_of_now_editing) {
             refer.text = self.textarea.lines().join("\n");
-            refer.todo_type = self.todo_type.clone();
+            refer.todo_type = self.todo_type.lines().join("\n");
         }
         if self.is_new {
             self.tree
@@ -169,7 +165,7 @@ impl App {
                 .push(self.id_of_now_editing.clone());
         }
         self.text_input = String::new();
-        self.todo_type = TodoTypes::Todo;
+        self.todo_type = TextArea::new(vec!["Todo: Todo".into()]);
         self.currently_editing = None;
     }
     pub fn toggle_editing(&mut self) {
@@ -190,10 +186,10 @@ impl App {
     }
 
     pub(crate) fn switch_to_next_type(&mut self) {
-        self.todo_type = self.todo_type.next();
+        //think
     }
     pub(crate) fn switch_to_prev_type(&mut self) {
-        self.todo_type = self.todo_type.prev();
+        //think
     }
     pub(crate) fn get_id_of_now_selected(&self) -> Option<Id> {
         if self.tree[&self.id_of_now_root].children.is_empty() {
@@ -255,6 +251,9 @@ impl App {
             data = VersionedData::V04(migrate_from_03_to_04(save));
         }
         if let VersionedData::V04(save) = data {
+            data = VersionedData::V05(migrate_from_04_to_05(save));
+        }
+        if let VersionedData::V05(save) = data {
             self.todos = save.todos;
             self.tree = save.tree;
         }
@@ -325,6 +324,14 @@ fn load_v(contents: String, v: String) -> Result<VersionedData, String> {
                 Err("V04 real?".into())
             }
         }
+        "0.5" => {
+            let a = serde_json::from_str::<SaveStruct04>(&contents);
+            if let Ok(o) = a {
+                Ok(VersionedData::V05(o))
+            } else {
+                Err("V05 real?".into())
+            }
+        }
         _ => Err("Version is corrupted".into()),
     }
 }
@@ -377,5 +384,30 @@ fn migrate_from_03_to_04(contents: SaveStruct03) -> SaveStruct04 {
             })
             .collect(),
         version: "0.4".into(),
+    }
+}
+fn migrate_from_04_to_05(contents: SaveStruct04) -> SaveStruct04 {
+    SaveStruct04 {
+        todos: contents
+            .todos
+            .iter()
+            .map(|f| {
+                return (
+                    f.0.clone(),
+                    Todo {
+                        id: f.1.id.clone(),
+                        text: f.1.text.clone(),
+                        todo_type:  match &f.1.todo_type[..] {
+                            "Done"=>"Todo: Done".into(),
+                            "Todo"=>"Todo: Todo".into(),
+                            "WorkInProgress"=>"Todo: WIP".into(),
+                            _=>"PROBLEM".into(),
+                        },
+                    },
+                );
+            })
+            .collect(),
+        tree: contents.tree,
+        version: "0.5".into(),
     }
 }

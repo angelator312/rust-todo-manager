@@ -3,52 +3,16 @@ use std::fmt::Display;
 
 use crate::app::Id;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub enum TodoTypes {
-    Done = 0,
-    WorkInProgress = 1,
-    Todo = 2,
-}
-impl TodoTypes {
-    pub fn next(&self) -> Self {
-        match self {
-            TodoTypes::Done => TodoTypes::Todo,
-            TodoTypes::WorkInProgress => TodoTypes::Done,
-            TodoTypes::Todo => Self::WorkInProgress,
-        }
-    }
-    pub fn prev(&self) -> Self {
-        match self {
-            TodoTypes::Done => TodoTypes::WorkInProgress,
-            TodoTypes::WorkInProgress => TodoTypes::Todo,
-            TodoTypes::Todo => Self::Done,
-        }
-    }
-}
-
-impl Display for TodoTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                TodoTypes::Done => "Done",
-                TodoTypes::WorkInProgress => "Work In progress",
-                TodoTypes::Todo => "Todo",
-            }
-        )
-    }
-}
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Todo {
-    pub todo_type: TodoTypes,
+    pub todo_type: String,
     pub text: String,
     pub id: Id,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Todo03 {
-    pub todo_type: TodoTypes,
+    pub todo_type: String,
     pub text: String,
     pub children: Vec<Id>,
     pub parent: Id,
@@ -82,12 +46,12 @@ impl TodoNode {
 impl Todo {
     pub(crate) fn make_root() -> Self {
         Self {
-            todo_type: TodoTypes::Done,
+            todo_type: "Todo: Done".into(),
             text: "RootOfAll 1".into(),
             id: "0".into(),
         }
     }
-    pub(crate) fn new(text: String, todo_type: TodoTypes, id: Id) -> Self {
+    pub(crate) fn new(text: String, todo_type: String, id: Id) -> Self {
         Self {
             todo_type,
             text,

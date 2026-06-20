@@ -198,7 +198,7 @@ where
                     }
                     _ => {}
                 },
-                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
+                CurrentScreen::Editing => match key.code {
                     KeyCode::Enter
                         if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType)) =>
                     {
@@ -212,23 +212,14 @@ where
                     KeyCode::Tab => {
                         app.toggle_editing();
                     }
-                    KeyCode::Up | KeyCode::Right
-                        if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType)) =>
-                    {
-                        app.switch_to_next_type();
-                    }
-                    KeyCode::Down | KeyCode::Left
-                        if matches!(app.currently_editing, Some(CurrentlyEditing::TodoType)) =>
-                    {
-                        app.switch_to_prev_type();
-                    }
                     _ => {
                         if matches!(app.currently_editing, Some(CurrentlyEditing::TodoText)) {
                             app.textarea.input(key);
+                        } else {
+                            app.todo_type.input(key);
                         }
                     }
                 },
-                CurrentScreen::Editing => {}
                 CurrentScreen::Deleting => match key.code {
                     KeyCode::Char(e) => app.text_input.push(e),
                     KeyCode::Enter => {
