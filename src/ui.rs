@@ -1,4 +1,4 @@
-use std::{cmp::min};
+use std::cmp::min;
 
 use ratatui::{
     Frame,
@@ -130,7 +130,11 @@ pub fn ui(frame: &mut Frame, app: &App) {
     if let Some(editing) = &app.currently_editing {
         let popup_block = Block::default()
             .title("Enter a new todo")
-            .borders(Borders::NONE)
+            .borders(Borders::ALL)
+            .border_style(match editing {
+                CurrentlyEditing::TodoText => DIALOG_EDITOR_ACTIVE_TAB,
+                _ => DIALOG_STYLE,
+            })
             .style(DIALOG_STYLE);
 
         let area = centered_rect(70, 50, frame.area());
@@ -141,10 +145,12 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .margin(1)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(area);
-        let mut value_block = Block::default().title("Value").borders(Borders::ALL);
+        let mut value_block = Block::default().title("Type").borders(Borders::ALL);
 
         match editing {
-            CurrentlyEditing::TodoType => value_block = value_block.style(DIALOG_EDITOR_ACTIVE_TAB),
+            CurrentlyEditing::TodoType => {
+                value_block = value_block.border_style(DIALOG_EDITOR_ACTIVE_TAB)
+            }
             _ => {}
         };
 
@@ -180,7 +186,12 @@ pub fn ui(frame: &mut Frame, app: &App) {
         .into();
         if app.text_input.starts_with("$") {
             let mut str = str + &app.text_input + "\n";
-            for e in app.config.list_projects().iter().filter(|f| f.starts_with(&app.text_input[..])) {
+            for e in app
+                .config
+                .list_projects()
+                .iter()
+                .filter(|f| f.starts_with(&app.text_input[..]))
+            {
                 str += e;
                 str += "\n";
             }

@@ -176,18 +176,15 @@ impl App {
         if let Some(edit_mode) = &self.currently_editing {
             match edit_mode {
                 CurrentlyEditing::TodoText => {
-                    self.textarea.set_style(DIALOG_STYLE);
                     self.currently_editing = Some(CurrentlyEditing::TodoType)
                 }
                 CurrentlyEditing::TodoType => {
-                    self.textarea.set_style(DIALOG_EDITOR_ACTIVE_TAB);
                     self.currently_editing = Some(CurrentlyEditing::TodoText)
                 }
             };
         } else {
             self.textarea
                 .set_block(Block::default().title("Text").borders(Borders::ALL));
-            self.textarea.set_style(DIALOG_EDITOR_ACTIVE_TAB);
             self.currently_editing = Some(CurrentlyEditing::TodoText);
         }
     }
