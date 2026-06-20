@@ -80,7 +80,7 @@ pub struct App {
     pub path_to_now_todo: Vec<String>,
     pub textarea: TextArea<'static>,
 }
-const VERSION_NOW: &str = "0.4";
+const VERSION_NOW: &str = "0.5";
 impl App {
     pub fn new() -> App {
         let mut hash = BTreeMap::new();
