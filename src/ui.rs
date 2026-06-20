@@ -145,6 +145,11 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .margin(1)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)])
             .split(area);
+        let type_chunks_draft = Layout::default()
+            .direction(Direction::Vertical)
+            // .margin(1)
+            .constraints([Constraint::Percentage(40), Constraint::Percentage(60)])
+            .split(popup_chunks[1]);
         let type_chunks = Layout::default()
             .direction(Direction::Vertical)
             .margin(1)
@@ -154,11 +159,20 @@ pub fn ui(frame: &mut Frame, app: &App) {
             .title("Type")
             .borders(Borders::ALL)
             .border_style(match editing {
-                CurrentlyEditing::TodoText => DIALOG_STYLE,
-                _ => DIALOG_EDITOR_ACTIVE_TAB,
+                CurrentlyEditing::TodoType => DIALOG_EDITOR_ACTIVE_TAB,
+                _ => DIALOG_STYLE,
             })
             .style(DIALOG_STYLE);
-        frame.render_widget(type_block, popup_chunks[1]);
+        frame.render_widget(type_block, type_chunks_draft[0]);
+        let type_block = Block::default()
+            .title("Type")
+            .borders(Borders::ALL)
+            .border_style(match editing {
+                CurrentlyEditing::TodoTypeAutoComplete => DIALOG_EDITOR_ACTIVE_TAB,
+                _ => DIALOG_STYLE,
+            })
+            .style(DIALOG_STYLE);
+        frame.render_widget(type_block, type_chunks_draft[1]);
 
         frame.render_widget(&app.textarea, popup_chunks[0]);
 

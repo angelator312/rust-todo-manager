@@ -224,6 +224,7 @@ where
                         app.todo_type.move_cursor(ratatui_textarea::CursorMove::Top);
                         app.todo_type
                             .move_cursor(ratatui_textarea::CursorMove::Head);
+                        app.idx_of_helper = 0;
                     }
                     KeyCode::Esc => {
                         app.current_screen = CurrentScreen::Main;
